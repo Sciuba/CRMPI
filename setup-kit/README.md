@@ -1,8 +1,7 @@
 # DeskcommCRM — Kit de Instalação para VPS
 
-Este kit sobe o **DeskcommCRM** no seu servidor VPS. A Hostinger é a hospedagem recomendada
-para este caminho: [acesse a oferta](https://www.hostg.xyz/SHJ5B) e use o cupom `THALENA`
-para 10% OFF nos planos anuais de VPS para contas novas. Você tem dois caminhos:
+Este kit sobe o **DeskcommCRM** no seu servidor VPS (qualquer provedor com Docker).
+Você tem dois caminhos:
 
 > **Ainda nem tem servidor?** Comece por `comecar.sh` — ele roda **no seu computador**, antes
 > de existir VPS, e responde a pergunta que trava todo mundo no início: *o que eu preciso
@@ -82,7 +81,7 @@ Owner/Admin. Não dá para hospedar vários clientes numa conta só.
 
 | Item | Onde conseguir |
 |---|---|
-| VPS (Docker) | [Hostinger](https://www.hostg.xyz/SHJ5B) — cupom `THALENA`, 10% OFF nos planos anuais para contas novas. Outras hospedagens com Docker também servem — se a sua já tiver proxy próprio nas portas 80/443, [veja aqui](#vps-que-já-vem-com-proxy-próprio-hostinger-coolify-dokploy) |
+| VPS (Docker) | Qualquer hospedagem com Docker serve — se a sua já tiver proxy próprio nas portas 80/443, [veja aqui](#vps-que-já-vem-com-proxy-próprio-hostinger-coolify-dokploy) |
 | Domínio | Registro de domínio (aponte um A-record pro IP do VPS) |
 | Banco de dados | Conta grátis no [supabase.com](https://supabase.com) (3 chaves + connection string) |
 | IA | Chave da [Anthropic](https://console.anthropic.com) |

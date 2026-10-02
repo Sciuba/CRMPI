@@ -1771,6 +1771,23 @@ echo "packaging: a tag do git não basta — as imagens têm de existir"
 # GHCR nasce privado, e repositório público não muda isso.
 TMP_PRIV="$(mktemp -d)"
 (
+  # O aviso só existe quando HÁ versão publicada no remoto (sem tag, o kit cai no
+  # ramo de falha aberta). Remoto local com uma tag, pelo mesmo motivo do caso de
+  # pinagem acima: sem isto o teste dependia de o REPO_URL padrão existir no
+  # GitHub e ter tags — e ficava vermelho em todo fork recém-criado.
+  origem="$TMP_PRIV/origem.git"
+  git init --quiet --bare "$origem"
+  (
+    cd "$TMP_PRIV" || exit 1
+    git clone --quiet "$origem" w 2>/dev/null
+    cd w || exit 1
+    git config user.email t@t; git config user.name t
+    echo x > a; git add -A; git commit --quiet -m init
+    git tag v1.0.0
+    git push --quiet origin HEAD --tags 2>/dev/null
+  )
+  export REPO_URL="$origem"
+
   montar_vps "$TMP_PRIV/vps" "crmpriv" <<'STUB'
 #!/usr/bin/env bash
 printf '%s\n' "$*" >> "$DOCKER_LOG"

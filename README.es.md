@@ -11,7 +11,7 @@
 [![TypeScript](https://img.shields.io/badge/TypeScript-strict-3178c6?logo=typescript)](https://www.typescriptlang.org)
 [![Supabase](https://img.shields.io/badge/Supabase-Postgres%2BAuth%2BStorage-3ecf8e?logo=supabase)](https://supabase.com)
 [![Self-hosted](https://img.shields.io/badge/self--hosted-1%20comando-orange)](setup-kit/)
-[![CI](https://github.com/melgarafael/DeskcommCRM/actions/workflows/ci.yml/badge.svg)](https://github.com/melgarafael/DeskcommCRM/actions/workflows/ci.yml)
+[![CI](https://github.com/Sciuba/CRMPI/actions/workflows/ci.yml/badge.svg)](https://github.com/Sciuba/CRMPI/actions/workflows/ci.yml)
 [![License: MIT](https://img.shields.io/badge/license-MIT-green)](LICENSE)
 
 [**⚡ Instalar**](#-instalar-en-tu-vps-el-camino-principal) · [**🔄 Actualizar**](#-actualizar) · [**🧭 Visión**](VISION.md) · [**🏗️ Arquitectura**](ARCHITECTURE.md) · [**🤝 Contribuir**](CONTRIBUTING.md) · [**🗺️ Roadmap**](#%EF%B8%8F-roadmap)
@@ -23,18 +23,14 @@
 > ### ☁️ Corre este CRM en producción con 1 comando
 >
 > DeskcommCRM instala el CRM completo (app + WhatsApp + base de datos) en un VPS con un único
-> comando. **Hostinger es el hosting recomendado** para este camino.
->
-> **[👉 Contrata un VPS de Hostinger con descuento](https://www.hostg.xyz/SHJ5B)** — usa el cupón
-> **`THALENA`** para obtener **10% OFF en los planes anuales de VPS**. Válido para cuentas
-> nuevas; si ya tienes una cuenta, usa otro correo electrónico.
+> comando. Funciona en cualquier VPS con Docker.
 >
 > **¿Todavía no tienes servidor?** Ejecuta esto **en tu propia computadora** (macOS, Linux o WSL).
 > Te muestra los recursos mínimos del VPS — con los números reales del runbook, no un "depende" — y te
 > devuelve el comando exacto para tu caso:
 >
 > ```bash
-> git clone https://github.com/melgarafael/DeskcommCRM.git
+> git clone https://github.com/Sciuba/CRMPI.git
 > cd DeskcommCRM
 > bash setup-kit/comecar.sh
 > ```
@@ -70,7 +66,7 @@ presiona Enter.
 Ya dentro del VPS:
 
 ```bash
-git clone https://github.com/melgarafael/DeskcommCRM.git
+git clone https://github.com/Sciuba/CRMPI.git
 cd DeskcommCRM
 bash setup-kit/install.sh
 ```
@@ -82,7 +78,7 @@ lista. Si falta Docker, el instalador pregunta y lo instala solo.
 
 | Ítem | Dónde conseguirlo |
 |---|---|
-| **VPS con Docker** | [Hostinger](https://www.hostg.xyz/SHJ5B) — cupón `THALENA`: 10% OFF en planes anuales para cuentas nuevas. O cualquier VPS con Docker; 4 GB de RAM recomendados. |
+| **VPS con Docker** | Cualquier VPS con Docker; 4 GB de RAM recomendados. |
 | **Dominio** | Un registro **A** apuntando a la IP del VPS (ej.: `crm.tuempresa.com`) |
 | **Base de datos** | Cuenta gratis en [supabase.com](https://supabase.com) — 3 claves + la cadena de conexión del **Session pooler** |
 | **IA** | Una clave de **OpenRouter**, **Anthropic** u **OpenAI** — el instalador pregunta cuál quieres |
@@ -272,7 +268,7 @@ Detalles: [`ARCHITECTURE.md`](ARCHITECTURE.md).
 > Esta sección es para quien va a tocar el código.
 
 ```bash
-git clone https://github.com/melgarafael/DeskcommCRM.git
+git clone https://github.com/Sciuba/CRMPI.git
 cd DeskcommCRM
 
 nvm use                     # Node 22
@@ -311,7 +307,7 @@ pnpm test:e2e      # Playwright (requiere dev server)
 **Estos checks son obligatorios** para mergear en `main`. Esta lista ya dijo "cuatro" y después "cinco" — **medí, no confíes en ella**:
 
 ```bash
-gh api repos/melgarafael/DeskcommCRM/branches/main/protection \
+gh api repos/Sciuba/CRMPI/branches/main/protection \
   --jq '.required_status_checks.contexts|join(", ")'
 # el 2026-08-14: verify, build-and-size, invariants, e2e, imagens-ok
 ```
@@ -377,9 +373,9 @@ Dos gates obligatorios **no** entran ahí y solo corren en CI: `e2e` (necesita u
 
 ## 🐛 Reportar bugs
 
-Abre un [issue](https://github.com/melgarafael/DeskcommCRM/issues/new/choose) — la plantilla pide lo que necesitamos (entorno, `/api/v1/health`, pasos). Correr `bash setup-kit/healthcheck.sh` y pegar la salida ayuda mucho.
+Abre un [issue](https://github.com/Sciuba/CRMPI/issues/new/choose) — la plantilla pide lo que necesitamos (entorno, `/api/v1/health`, pasos). Correr `bash setup-kit/healthcheck.sh` y pegar la salida ayuda mucho.
 
-Para **vulnerabilidades de seguridad**, **NO abras un issue público** — usa el [reporte privado de vulnerabilidades](https://github.com/melgarafael/DeskcommCRM/security/advisories/new). Detalles en [`SECURITY.md`](SECURITY.md).
+Para **vulnerabilidades de seguridad**, **NO abras un issue público** — usa el [reporte privado de vulnerabilidades](https://github.com/Sciuba/CRMPI/security/advisories/new). Detalles en [`SECURITY.md`](SECURITY.md).
 
 ---
 
@@ -410,10 +406,8 @@ Para **vulnerabilidades de seguridad**, **NO abras un issue público** — usa e
 
 ## 💬 Comunidad
 
-- **Discusiones:** [GitHub Discussions](https://github.com/melgarafael/DeskcommCRM/discussions)
-- **Issues:** [GitHub Issues](https://github.com/melgarafael/DeskcommCRM/issues)
-- **Instagram:** [@melgarafael](https://www.instagram.com/melgarafael)
-- **YouTube:** [youtube.com/@melgarafael](https://www.youtube.com/@melgarafael)
+- **Discusiones:** [GitHub Discussions](https://github.com/Sciuba/CRMPI/discussions)
+- **Issues:** [GitHub Issues](https://github.com/Sciuba/CRMPI/issues)
 
 ---
 
@@ -438,7 +432,6 @@ Este es un proyecto **self-host**: cada persona corre el CRM en su **propia infr
 
 - **WAHA** ([devlikeapro](https://waha.devlikeapro.com/)) — motor de WhatsApp.
 - **Supabase** — Postgres + Auth + Storage + Realtime en una sola stack.
-- **Hostinger** — hosting recomendado para instalar el proyecto, con cupón `THALENA` para nuevas cuentas anuales de VPS.
 - **Anthropic**, **OpenAI** y **OpenRouter** — los proveedores de IA que el CRM sabe usar.
 - **shadcn/ui** — base de componentes.
 - La comunidad que nos llevó del e-commerce a clínicas, inmobiliarias, infoproductos y más allá — ustedes definieron lo que es este proyecto.
