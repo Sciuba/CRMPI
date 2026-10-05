@@ -289,6 +289,6 @@ Adotamos integralmente o **bundle herdado** da referência *Aula CRM Nichado WAH
 
 📧 rafael@maudibrasil.com.br
 📍 São Paulo, BR
-🔗 docs: github.com/melgarafael/DeskcommCRM (em breve)
+🔗 docs: github.com/Sciuba/CRMPI (em breve)
 
 **Perguntas?**

@@ -9,15 +9,14 @@
 #
 # Uso:
 #   bash comecar.sh
-#   curl -fsSL https://raw.githubusercontent.com/melgarafael/DeskcommCRM/main/setup-kit/comecar.sh | bash
+#   curl -fsSL https://raw.githubusercontent.com/Sciuba/CRMPI/main/setup-kit/comecar.sh | bash
 #
 set -euo pipefail
 
-REPO_URL="${REPO_URL:-https://github.com/melgarafael/DeskcommCRM.git}"
-# Oferta recomendada no README. Uma promessa só, num lugar só — duas redações
-# da mesma oferta viram duas ofertas.
-VPS_URL="https://www.hostg.xyz/SHJ5B"
-COMUNIDADE_URL="https://lp-comunidade.automatiklabs.com.br"
+REPO_URL="${REPO_URL:-https://github.com/Sciuba/CRMPI.git}"
+# Página neutra de VPS: o kit roda em qualquer provedor com Docker.
+VPS_URL="https://www.hostinger.com.br/vps"
+COMUNIDADE_URL="https://github.com/Sciuba/CRMPI/discussions"
 
 # ── Aparência ───────────────────────────────────────────────────────────────
 # Gêmeas das do install.sh (que por sua vez é standalone porque roda antes do
@@ -129,11 +128,10 @@ mostrar_requisitos() {
 
   Onde contratar:
 
-       Hostinger (hospedagem recomendada; cupom THALENA)
+       Exemplo: Hostinger (ou qualquer VPS com Docker)
        ${VPS_URL}
 
 REQ
-  c_dim "  Use o cupom THALENA para 10% OFF nos planos anuais de VPS (contas novas)."
   c_dim "  O CRM é MIT e roda em qualquer servidor — se você já tem um, ou prefere"
   c_dim "  outro provedor, funciona igual."
   printf '\n'

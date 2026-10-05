@@ -34,7 +34,13 @@ jobs:
         # aceita `timeout-minutes`. Razão e medições: o cabeçalho da action.
         timeout-minutes: 5
 
+      # Repositório PRIVADO roda em runner de 2 vCPU / 7 GB (o público ganha
+      # 16 GB), e o teto de heap padrão do Node acompanha a RAM: ~2 GB. O `tsc`
+      # deste projeto passa disso — medido no PR #1: OOM aos 57s, exit 134.
+      # 5 GB deixa folga dentro dos 7 GB da máquina.
       - name: Typecheck
+        env:
+          NODE_OPTIONS: --max-old-space-size=5120
         run: pnpm typecheck
 
       - name: Lint

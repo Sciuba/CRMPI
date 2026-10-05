@@ -23,7 +23,7 @@
 ## 1. Clonar e configurar
 
 ```bash
-git clone https://github.com/melgarafael/DeskcommCRM.git && cd DeskcommCRM
+git clone https://github.com/Sciuba/CRMPI.git deskcommcrm && cd deskcommcrm
 cp .env.vps.example .env   # o template de produção (o .env.example é o de dev)
 ```
 
