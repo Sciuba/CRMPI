@@ -205,6 +205,13 @@ jobs:
           cache-to: type=gha,mode=max,scope=${{ matrix.name }}
           # Sem build-args de segredo: a imagem é genérica (NEXT_PUBLIC_* viram
           # placeholder; valores reais entram em runtime no VPS do usuário).
+          #
+          # O token do Sentry entra como secret de BuildKit (não fica em camada)
+          # e SÓ quando a imagem é publicada: build de PR é descartado, e subir
+          # source map dele encheria o Sentry de artefato que nunca roda. Só o
+          # Dockerfile do app o consome; os outros dois ignoram.
+          secrets: |
+            sentry_auth_token=${{ github.event_name != 'pull_request' && secrets.SENTRY_AUTH_TOKEN || '' }}
 
   # A imagem do app CONSTRÓI e MORRE ao subir? Este job existe porque isso
   # aconteceu: `next@16.3.1` passou a resolver `@swc/helpers` por ESM, o file

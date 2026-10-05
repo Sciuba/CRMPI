@@ -86,9 +86,21 @@ export default withSentryConfig(nextConfig, {
   // For all available options, see:
   // https://www.npmjs.com/package/@sentry/webpack-plugin#options
 
-  org: "automatik-labs",
+  // O Sentry do CRMPI (o mesmo do DEFAULT_SENTRY_DSN em lib/sentry/dsn.ts).
+  // Estes dois só valem para o UPLOAD de source maps no build — os erros em
+  // runtime vão para o DSN, seja ele qual for.
+  org: "7creations",
 
-  project: "javascript-nextjs",
+  project: "crmpi",
+
+  // Sem token, o upload é pulado e o build segue (build local, PR de fork). No
+  // CI ele chega como secret de BuildKit — ver o Dockerfile e publish-image.yml.
+  authToken: process.env.SENTRY_AUTH_TOKEN,
+
+  // Depois de enviados ao Sentry, os .map não precisam ir na imagem.
+  sourcemaps: {
+    deleteSourcemapsAfterUpload: true,
+  },
 
   // Only print logs for uploading source maps in CI
   silent: !process.env.CI,

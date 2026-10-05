@@ -39,10 +39,12 @@ ENV NEXT_PUBLIC_SUPABASE_URL=$NEXT_PUBLIC_SUPABASE_URL \
     NODE_OPTIONS=--max-old-space-size=4096
 
 # Turbopack (`pnpm build`): ~4min vs ~34min do webpack num VPS. O bloco `webpack:`
-# do Sentry (tree-shake + upload de sourcemap em build-time) é ignorado, mas o
-# Sentry RUNTIME segue ativo (DSN hardcoded nas configs). Sourcemap upload é
-# concern só da Vercel; aqui o ganho de tempo de build é o que importa pro leigo.
-RUN pnpm build
+# do Sentry é ignorado, mas o upload de source maps NÃO: no Turbopack o
+# @sentry/nextjs 10 sobe os .map no gancho `runAfterProductionCompile` — basta
+# haver SENTRY_AUTH_TOKEN. Ele chega como secret de BuildKit (só no CI, só em
+# push), então não fica em camada nenhuma da imagem. Sem o secret — build local,
+# PR, `docker-compose.build.yml` na VPS — o upload é pulado e o build segue igual.
+RUN --mount=type=secret,id=sentry_auth_token,env=SENTRY_AUTH_TOKEN pnpm build
 
 # ---- runner: imagem slim de produção ----
 FROM node:22-alpine AS runner

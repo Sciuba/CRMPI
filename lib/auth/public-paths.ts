@@ -57,6 +57,12 @@ export const PUBLIC_PATHS: RegExp[] = [
   // dois nomes de propósito: `/^\/legal/` deixaria qualquer sub-path futuro
   // nascer público de carona.
   /^\/legal\/(terms|privacy)$/,
+  // Túnel do Sentry (`tunnelRoute` em next.config.ts): é por aqui que o
+  // NAVEGADOR envia os erros. Sem esta linha, quem ainda não tem sessão leva
+  // 307 para `/login` e o erro some — exatamente nas telas de primeira
+  // impressão (login, cadastro, aceitar convite). A rota é um rewrite que só
+  // repassa o envelope ao ingest do Sentry; não toca dado nenhum do CRM.
+  /^\/monitoring$/,
 ];
 
 export function isPublicPath(pathname: string): boolean {
