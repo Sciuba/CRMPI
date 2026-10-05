@@ -397,16 +397,16 @@ v_password() {
 # Devolve 0 quando o valor foi aceito, 2 quando a pessoa pediu para voltar.
 # Repete a pergunta enquanto o validador reprovar: o instalador não deixa mais
 # ninguém avançar carregando um dado errado.
-# ── O token de leitura do código (repositório privado) ─────────────────────
+# ── O token de leitura do código (quando o GitHub recusa o acesso) ──────────
 # Fora do `ask_one` de propósito: ele grava cada resposta no `.env`
 # (save_partial), e o `.env` vai inteiro para dentro dos contêineres.
 pedir_token_do_repo() {
   [ -n "${REPO_TOKEN:-}" ] && { export REPO_TOKEN; return 0; }
   if [ "$NONINTERACTIVE" = 1 ]; then
-    die "O código é privado e falta o token de acesso. Rode com: REPO_TOKEN=<token> bash install.sh --yes"
+    die "O GitHub recusou o acesso ao código e falta o token. Rode com: REPO_TOKEN=<token> bash install.sh --yes"
   fi
-  c_dim "  O código do CRM é privado. Cole o token de acesso que você recebeu"
-  c_dim "  junto com o CRM (começa com github_pat_). Ele não aparece enquanto você cola."
+  c_dim "  O GitHub pediu autorização para baixar o código. Cole o token de acesso que"
+  c_dim "  você recebeu junto com o CRM (começa com github_pat_). Ele não aparece enquanto você cola."
   local t=""
   while [ -z "$t" ]; do
     read -r -s -p "  Token de acesso: " t || die "A entrada terminou antes de eu receber o token."

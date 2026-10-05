@@ -9,9 +9,7 @@
 #
 # Uso:
 #   bash comecar.sh
-#
-# (O repositório é privado: `curl` do raw.githubusercontent sem token devolve
-# 404. Este script chega por dentro do clone, ou copiado à mão.)
+#   curl -fsSL https://raw.githubusercontent.com/Sciuba/CRMPI/main/setup-kit/comecar.sh | bash
 #
 set -euo pipefail
 
@@ -147,11 +145,6 @@ comando_de_instalacao() {
        git clone ${REPO_URL} deskcommcrm
        cd deskcommcrm
        bash setup-kit/install.sh
-
-  O código é privado: o git vai pedir usuário e senha. No usuário, digite
-  qualquer coisa; na senha, cole o token de acesso que você recebeu junto com o
-  CRM (ele não aparece enquanto você cola). O instalador guarda o token para as
-  atualizações — você não digita de novo.
 
   O instalador cuida do resto: instala o Docker se faltar, cria o banco,
   configura o domínio com HTTPS e sobe o CRM. Ele pergunta o que só você sabe

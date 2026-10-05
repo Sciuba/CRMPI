@@ -5,7 +5,7 @@ set -euo pipefail
 COMPOSE="docker-compose.prod.yml"
 COMPOSE_TRAEFIK="docker-compose.traefik.yml"
 
-# O repositório é PRIVADO: sem credencial, o git pergunta usuário e senha. Num
+# Com repositório privado (ou token vencido), o git pergunta usuário e senha. Num
 # script isso é pior que falhar — o cron do agente fica parado esperando um
 # teclado que não existe. Com isto, todo git do kit falha na hora e quem chama
 # decide o que dizer.
@@ -444,9 +444,9 @@ IMG_APP="${IMG_NS}/deskcommcrm"
 IMG_WORKER="${IMG_NS}/deskcomm-worker"
 IMG_SCHEDULER="${IMG_NS}/deskcomm-scheduler"
 
-# ── Acesso ao código (repositório privado) ──────────────────────────────────
-# Cada instalação recebe um token de LEITURA do repositório (fine-grained, só
-# "Contents: read"). Ele fica num arquivo dentro do `.git` desta cópia, com
+# ── Acesso ao código (quando o repositório é privado) ───────────────────────
+# Hoje o repositório é público e nada disto é acionado. Se ele for privado, cada
+# instalação recebe um token de LEITURA (fine-grained, só "Contents: read"). Ele fica num arquivo dentro do `.git` desta cópia, com
 # permissão 600, e só o git desta pasta o usa.
 #
 # NUNCA no `.env`: o compose entrega o `.env` inteiro aos contêineres

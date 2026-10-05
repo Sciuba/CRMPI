@@ -70,11 +70,6 @@ cd deskcommcrm
 bash setup-kit/install.sh
 ```
 
-The code is private, so `git clone` asks for a username and password. For the **username**, type
-anything. For the **password**, paste the **access token** you received with the CRM (it starts
-with `github_pat_` and stays hidden while you paste). The installer keeps the token for updates.
-If it ever expires, run `bash setup-kit/trocar-token.sh`.
-
 That's it. **You don't install Node, or pnpm, or compile anything** — the app image is
 prebuilt. If Docker is missing, the installer asks and installs it for you.
 
