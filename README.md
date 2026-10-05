@@ -30,8 +30,8 @@
 > comando certo pro seu caso:
 >
 > ```bash
-> git clone https://github.com/Sciuba/CRMPI.git
-> cd DeskcommCRM
+> git clone https://github.com/Sciuba/CRMPI.git deskcommcrm
+> cd deskcommcrm
 > bash setup-kit/comecar.sh
 > ```
 >
@@ -65,10 +65,15 @@ travamento: é o terminal escondendo a senha. Digite (ou cole) e dê Enter.
 Já dentro da VPS:
 
 ```bash
-git clone https://github.com/Sciuba/CRMPI.git
-cd DeskcommCRM
+git clone https://github.com/Sciuba/CRMPI.git deskcommcrm
+cd deskcommcrm
 bash setup-kit/install.sh
 ```
+
+O código é privado, então o `git clone` pede usuário e senha. No **usuário**, digite qualquer
+coisa. Na **senha**, cole o **token de acesso** que você recebeu junto com o CRM (ele começa com
+`github_pat_` e não aparece enquanto você cola). O instalador guarda o token para as atualizações.
+Se um dia ele vencer, rode `bash setup-kit/trocar-token.sh`.
 
 É isso. **Você não instala Node, nem pnpm, nem compila nada** — a imagem do app já vem pronta.
 Se faltar Docker, o instalador pergunta e instala sozinho.
@@ -266,8 +271,8 @@ Detalhes: [`ARCHITECTURE.md`](ARCHITECTURE.md).
 > Esta seção é pra quem vai mexer no código.
 
 ```bash
-git clone https://github.com/Sciuba/CRMPI.git
-cd DeskcommCRM
+git clone https://github.com/Sciuba/CRMPI.git deskcommcrm
+cd deskcommcrm
 
 nvm use                     # Node 22
 npm install -g pnpm && pnpm install

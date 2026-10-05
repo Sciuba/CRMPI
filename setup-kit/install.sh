@@ -397,6 +397,24 @@ v_password() {
 # Devolve 0 quando o valor foi aceito, 2 quando a pessoa pediu para voltar.
 # Repete a pergunta enquanto o validador reprovar: o instalador não deixa mais
 # ninguém avançar carregando um dado errado.
+# ── O token de leitura do código (repositório privado) ─────────────────────
+# Fora do `ask_one` de propósito: ele grava cada resposta no `.env`
+# (save_partial), e o `.env` vai inteiro para dentro dos contêineres.
+pedir_token_do_repo() {
+  [ -n "${REPO_TOKEN:-}" ] && { export REPO_TOKEN; return 0; }
+  if [ "$NONINTERACTIVE" = 1 ]; then
+    die "O código é privado e falta o token de acesso. Rode com: REPO_TOKEN=<token> bash install.sh --yes"
+  fi
+  c_dim "  O código do CRM é privado. Cole o token de acesso que você recebeu"
+  c_dim "  junto com o CRM (começa com github_pat_). Ele não aparece enquanto você cola."
+  local t=""
+  while [ -z "$t" ]; do
+    read -r -s -p "  Token de acesso: " t || die "A entrada terminou antes de eu receber o token."
+    echo
+  done
+  REPO_TOKEN="$t"; export REPO_TOKEN
+}
+
 ask_one() {
   local var="$1" prompt="$2" default="${3:-}" validator="${4:-}" secret="${5:-}" optional="${6:-}"
   local cur="${!var:-}"
@@ -836,11 +854,36 @@ elif [ -f "$REPO_DIR/$COMPOSE" ]; then
   cd "$REPO_DIR"; c_grn "✓ repositório em ./$REPO_DIR"
 else
   c_ylw "Clonando $REPO_URL ..."
-  git clone --depth 1 "$REPO_URL" "$REPO_DIR"
+  # O token chega ao git por um helper que o lê da variável — nunca pela linha de
+  # comando (que aparece no `ps` de qualquer usuário da máquina) nem pela URL.
+  if ! GIT_TERMINAL_PROMPT=0 git ls-remote "$REPO_URL" HEAD >/dev/null 2>&1; then
+    pedir_token_do_repo
+  fi
+  # shellcheck disable=SC2016  # o $REPO_TOKEN é expandido pelo shell do helper, não aqui
+  GIT_TERMINAL_PROMPT=0 git -c credential.helper= \
+    -c 'credential.helper=!f() { echo username=x-access-token; echo "password=${REPO_TOKEN:-}"; }; f' \
+    clone --depth 1 "$REPO_URL" "$REPO_DIR" \
+    || die "Não consegui baixar o código. Confira o token de acesso (ele precisa de leitura no repositório) e a internet do servidor."
   cd "$REPO_DIR"
 fi
 PROJECT_DIR="$(pwd)"
 source "$KIT_DIR/_common.sh"
+
+# ── Acesso ao código para as ATUALIZAÇÕES ───────────────────────────────────
+# Quem clonou à mão digitou o token no prompt do git, e o git não o guardou. Sem
+# gravá-lo aqui, a instalação sobe e a primeira atualização — pela tela, via
+# cron, sem ninguém para digitar — falha calada meses depois.
+[ -n "${REPO_TOKEN:-}" ] && gravar_token_do_repo "$REPO_TOKEN"
+acesso_rc=0; repo_alcancavel || acesso_rc=$?
+if [ "$acesso_rc" = 2 ]; then
+  [ -n "${REPO_TOKEN:-}" ] && die "O GitHub recusou esse token. Confira se ele tem leitura (Contents: read) no repositório e se não venceu."
+  pedir_token_do_repo
+  gravar_token_do_repo "$REPO_TOKEN"
+  acesso_rc=0; repo_alcancavel || acesso_rc=$?
+  [ "$acesso_rc" = 2 ] && die "O GitHub recusou esse token. Confira se ele tem leitura (Contents: read) no repositório e se não venceu."
+fi
+[ "$acesso_rc" = 0 ] && c_grn "✓ acesso ao código guardado para as atualizações"
+unset acesso_rc
 
 # ── O invariante 8 também vale para quem INSTALA ────────────────────────────
 #

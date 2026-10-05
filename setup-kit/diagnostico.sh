@@ -19,7 +19,10 @@
 # depender dele seria diagnosticar o passado com a ferramenta do passado. E
 # precisa poder ser baixado avulso, sem clonar nada:
 #
-#   curl -fsSL https://raw.githubusercontent.com/Sciuba/CRMPI/main/setup-kit/diagnostico.sh | bash
+#   curl -fsSL -H "Authorization: Bearer $REPO_TOKEN" \
+#     https://raw.githubusercontent.com/Sciuba/CRMPI/main/setup-kit/diagnostico.sh | bash
+#
+# (Repositório privado: sem o token, o raw devolve 404.)
 #
 # ── O que ele pode assumir que existe ────────────────────────────────────────
 # Medido numa VPS real: bash 5.1, docker, docker compose, curl, sed/awk/grep.

@@ -5,6 +5,12 @@ set -euo pipefail
 COMPOSE="docker-compose.prod.yml"
 COMPOSE_TRAEFIK="docker-compose.traefik.yml"
 
+# O repositório é PRIVADO: sem credencial, o git pergunta usuário e senha. Num
+# script isso é pior que falhar — o cron do agente fica parado esperando um
+# teclado que não existe. Com isto, todo git do kit falha na hora e quem chama
+# decide o que dizer.
+export GIT_TERMINAL_PROMPT=0
+
 # Proxy reverso desta instalação. Vem do .env (load_env), com default 'caddy' —
 # ou seja, toda instalação que já existe continua exatamente como está.
 #
@@ -437,6 +443,55 @@ IMG_NS="ghcr.io/sciuba"
 IMG_APP="${IMG_NS}/deskcommcrm"
 IMG_WORKER="${IMG_NS}/deskcomm-worker"
 IMG_SCHEDULER="${IMG_NS}/deskcomm-scheduler"
+
+# ── Acesso ao código (repositório privado) ──────────────────────────────────
+# Cada instalação recebe um token de LEITURA do repositório (fine-grained, só
+# "Contents: read"). Ele fica num arquivo dentro do `.git` desta cópia, com
+# permissão 600, e só o git desta pasta o usa.
+#
+# NUNCA no `.env`: o compose entrega o `.env` inteiro aos contêineres
+# (`env_file: .env`), e o token passaria a morar dentro do app.
+#
+# NUNCA na URL do `origin`: `git remote -v` o imprimiria, e a URL aparece em
+# mensagem de erro e em log de diagnóstico.
+arquivo_do_token_do_repo() { printf '%s/deskcomm-credencial' "$(git rev-parse --absolute-git-dir)"; }
+
+gravar_token_do_repo() {  # gravar_token_do_repo <token>   (de dentro do repositório)
+  local arq
+  # Pasta que não é clone (kit copiado à mão): não há git para usar o token.
+  git rev-parse --git-dir >/dev/null 2>&1 || return 0
+  arq="$(arquivo_do_token_do_repo)" || return 1
+  ( umask 077; printf 'https://x-access-token:%s@github.com\n' "$1" > "$arq" )
+  # O helper vazio primeiro ZERA os herdados (um helper global da máquina
+  # responderia antes do nosso, com outra conta).
+  git config --unset-all credential.https://github.com.helper 2>/dev/null || true
+  git config --add credential.https://github.com.helper ""
+  git config --add credential.https://github.com.helper "store --file='$arq'"
+}
+
+# O `origin` responde sem ninguém digitar nada?
+#   0 = sim | 1 = não, por rede (tentar de novo resolve) | 2 = não, por ACESSO
+# Separar 1 de 2 é o ponto: dizer "seu token venceu" a quem só está sem internet
+# manda a pessoa pedir token novo à toa. Remoto que não é GitHub por HTTPS
+# (caminho local nos testes, SSH de quem preferiu) não é assunto daqui.
+repo_alcancavel() {
+  local url err
+  url="$(git remote get-url origin 2>/dev/null)" || return 0
+  case "$url" in https://github.com/*) ;; *) return 0 ;; esac
+  err="$(git ls-remote origin HEAD 2>&1 >/dev/null)" && return 0
+  case "$err" in
+    # sem credencial | credencial recusada | token sem acesso a ESTE repo
+    *"could not read Username"*|*"Authentication failed"*|*"Invalid username"*|*"Repository not found"*|*" 403"*) return 2 ;;
+  esac
+  return 1
+}
+
+# Frase única para o token que parou de valer — o update.sh e o trocar-token.sh
+# dizem a mesma coisa, e o dono da instalação só precisa aprender um comando.
+avisar_token_invalido() {
+  c_ylw "⚠ O GitHub recusou o acesso ao código. O token desta instalação venceu ou foi revogado."
+  c_ylw "  Peça um token novo a quem te forneceu o CRM e rode: bash setup-kit/trocar-token.sh"
+}
 
 # A última versão publicada (ex.: "1.2.1"), ou vazio se não deu para saber.
 #

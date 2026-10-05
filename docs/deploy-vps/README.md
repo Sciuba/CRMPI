@@ -158,8 +158,8 @@ Agora escolha um dos dois caminhos:
 No servidor, baixe o projeto e rode o instalador:
 
 ```bash
-git clone https://github.com/Sciuba/CRMPI.git
-cd DeskcommCRM
+git clone https://github.com/Sciuba/CRMPI.git deskcommcrm
+cd deskcommcrm
 bash setup-kit/install.sh
 ```
 

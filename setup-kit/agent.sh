@@ -104,7 +104,16 @@ esc() {
 
 # ── 1. Que versão está instalada e qual é a última publicada? ────────────────
 FETCH_OK=1
-git fetch --tags --quiet origin 2>/dev/null || FETCH_OK=0
+if ! git fetch --tags --quiet origin 2>/dev/null; then
+  FETCH_OK=0
+  # Token vencido não se conserta tentando de novo, ao contrário da rede: deixa
+  # escrito no log do agente o comando que conserta.
+  acesso_rc=0; repo_alcancavel || acesso_rc=$?
+  if [ "$acesso_rc" = 2 ]; then
+    printf '%s GitHub recusou o token do repositório — rode: bash setup-kit/trocar-token.sh\n' \
+      "$(date -u +%Y-%m-%dT%H:%M:%SZ)" >> "$ERRLOG" || true
+  fi
+fi
 
 CURRENT_TAG="$(git describe --tags --exact-match HEAD 2>/dev/null || true)"
 CURRENT_SHA="$(git rev-parse --short HEAD 2>/dev/null || echo '?')"

@@ -30,8 +30,8 @@
 > command for your case:
 >
 > ```bash
-> git clone https://github.com/Sciuba/CRMPI.git
-> cd DeskcommCRM
+> git clone https://github.com/Sciuba/CRMPI.git deskcommcrm
+> cd deskcommcrm
 > bash setup-kit/comecar.sh
 > ```
 >
@@ -65,10 +65,15 @@ That is not a freeze: the terminal is hiding your password. Type (or paste) it a
 Once inside the VPS:
 
 ```bash
-git clone https://github.com/Sciuba/CRMPI.git
-cd DeskcommCRM
+git clone https://github.com/Sciuba/CRMPI.git deskcommcrm
+cd deskcommcrm
 bash setup-kit/install.sh
 ```
+
+The code is private, so `git clone` asks for a username and password. For the **username**, type
+anything. For the **password**, paste the **access token** you received with the CRM (it starts
+with `github_pat_` and stays hidden while you paste). The installer keeps the token for updates.
+If it ever expires, run `bash setup-kit/trocar-token.sh`.
 
 That's it. **You don't install Node, or pnpm, or compile anything** — the app image is
 prebuilt. If Docker is missing, the installer asks and installs it for you.
@@ -267,8 +272,8 @@ Details: [`ARCHITECTURE.md`](ARCHITECTURE.md).
 > This section is for people who will change the code.
 
 ```bash
-git clone https://github.com/Sciuba/CRMPI.git
-cd DeskcommCRM
+git clone https://github.com/Sciuba/CRMPI.git deskcommcrm
+cd deskcommcrm
 
 nvm use                     # Node 22
 npm install -g pnpm && pnpm install
