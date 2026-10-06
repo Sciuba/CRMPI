@@ -221,6 +221,29 @@ describe("packaging — o artefato que o cliente instala", () => {
     }
   });
 
+  it("o build do app nomeia a release do Sentry com a APP_VERSION", () => {
+    // O ARG do estágio `runner` não alcança o `pnpm build`: cada estágio tem os
+    // seus. Sem o ARG no estágio `build`, o plugin do Sentry não acha nome de
+    // release (a imagem não tem .git) e os source maps sobem com "Releases:
+    // undefined" — ninguém sabe em que versão um erro apareceu.
+    const dockerfile = fs.readFileSync(path.join(RAIZ, "Dockerfile"), "utf8");
+    const estagioBuild = dockerfile.split(/^FROM /m).find((e) => / AS build\b/.test(e)) ?? "";
+    const antesDoBuild = estagioBuild.split(/^RUN .*pnpm build/m)[0] ?? "";
+    expect(antesDoBuild, "estágio build sem ARG APP_VERSION antes do pnpm build").toMatch(
+      /^ARG APP_VERSION/m,
+    );
+
+    const config = fs.readFileSync(path.join(RAIZ, "next.config.ts"), "utf8");
+    expect(config, "next.config não usa APP_VERSION como release do Sentry").toMatch(
+      /release:\s*\{[^}]*name:\s*process\.env\.APP_VERSION/,
+    );
+    // `silent: !process.env.CI` calava o upload dentro do docker build, onde
+    // não há CI — sucesso e falha saíam iguais no log.
+    expect(config, "o log do upload não pode depender de CI").not.toMatch(
+      /silent:\s*!process\.env\.CI\b/,
+    );
+  });
+
   it("o workflow publica as três imagens e injeta APP_VERSION", () => {
     const wf = fs.readFileSync(path.join(RAIZ, ".github/workflows/publish-image.yml"), "utf8");
     for (const imagem of ["deskcommcrm", "deskcomm-worker", "deskcomm-scheduler"]) {

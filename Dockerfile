@@ -44,6 +44,10 @@ ENV NEXT_PUBLIC_SUPABASE_URL=$NEXT_PUBLIC_SUPABASE_URL \
 # haver SENTRY_AUTH_TOKEN. Ele chega como secret de BuildKit (só no CI, só em
 # push), então não fica em camada nenhuma da imagem. Sem o secret — build local,
 # PR, `docker-compose.build.yml` na VPS — o upload é pulado e o build segue igual.
+# APP_VERSION aqui nomeia a release do Sentry (next.config.ts). É um ARG próprio
+# deste estágio: o do `runner`, abaixo, não alcança o `pnpm build`, e a imagem
+# não tem .git para o plugin adivinhar o nome.
+ARG APP_VERSION=dev
 RUN --mount=type=secret,id=sentry_auth_token,env=SENTRY_AUTH_TOKEN pnpm build
 
 # ---- runner: imagem slim de produção ----
