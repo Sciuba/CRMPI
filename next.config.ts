@@ -97,13 +97,21 @@ export default withSentryConfig(nextConfig, {
   // CI ele chega como secret de BuildKit — ver o Dockerfile e publish-image.yml.
   authToken: process.env.SENTRY_AUTH_TOKEN,
 
+  // A versão da imagem ("1.19.0" na tag, SHA curto na main) vira o nome da
+  // release: cada erro no Sentry diz em que versão aconteceu. Sem APP_VERSION
+  // (build fora do Docker), o plugin cai no próprio palpite.
+  release: {
+    name: process.env.APP_VERSION || undefined,
+  },
+
   // Depois de enviados ao Sentry, os .map não precisam ir na imagem.
   sourcemaps: {
     deleteSourcemapsAfterUpload: true,
   },
 
-  // Only print logs for uploading source maps in CI
-  silent: !process.env.CI,
+  // Fala no log sempre que há upload a fazer. Dependia de CI, que não existe
+  // dentro do docker build — e o envio passava calado, com sucesso ou sem.
+  silent: !process.env.SENTRY_AUTH_TOKEN,
 
   // For all available options, see:
   // https://docs.sentry.io/platforms/javascript/guides/nextjs/manual-setup/
