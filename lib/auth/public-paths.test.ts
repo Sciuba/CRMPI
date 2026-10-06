@@ -42,6 +42,23 @@ describe("isPublicPath", () => {
     expect(isPublicPath("/legal/privacy")).toBe(true);
   });
 
+  /**
+   * O túnel do Sentry (`tunnelRoute` em next.config.ts) é por onde o NAVEGADOR
+   * manda os erros. Fora daqui, quem ainda não tem sessão recebe 307 para
+   * `/login` e o erro morre no caminho — justamente nas telas de primeira
+   * impressão (login, cadastro, aceitar convite), que são as que rodam sem
+   * sessão. A rota só repassa o envelope ao ingest do Sentry; não lê nem grava
+   * nada do CRM.
+   */
+  it("libera o túnel do Sentry — erro de tela sem sessão também precisa chegar", () => {
+    expect(isPublicPath("/monitoring")).toBe(true);
+  });
+
+  it("e só o túnel: /monitoring não vira prefixo aberto", () => {
+    expect(isPublicPath("/monitoring/qualquer")).toBe(false);
+    expect(isPublicPath("/monitoringx")).toBe(false);
+  });
+
   it("e só esses dois: /legal não é um portão aberto", () => {
     // Entrada larga aqui é furo de auth em toda a aplicação, não só nesta tela.
     expect(isPublicPath("/legal")).toBe(false);
