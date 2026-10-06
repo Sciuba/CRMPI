@@ -8,6 +8,22 @@ Se você roda o DeskcommCRM numa VPS, **leia a seção da versão para a qual es
 
 ## [Não lançado]
 
+## [1.18.1] — 2026-10-06
+
+### Corrigido
+
+- **Erros no Sentry do projeto passam a dizer em que versão aconteceram** Os mapas do código enviados ao Sentry do projeto agora levam o número da versão da imagem
+  (ou o código do commit, nas imagens da `main`). Assim, cada erro registrado lá mostra em que
+  versão do CRM ele apareceu. Nada muda para quem opera a VPS.
+
+- **Erros nas telas de login, cadastro e convite passam a chegar ao Sentry** O navegador envia os erros ao Sentry pelo endereço `/monitoring` do próprio CRM, e esse endereço
+  exigia uma sessão aberta. Por isso, um erro na tela de login, de cadastro ou de aceitar convite,
+  antes de a pessoa ter entrado, era redirecionado para o login e se perdia. Agora ele chega,
+  tanto ao Sentry configurado em `SENTRY_DSN` quanto ao padrão.
+
+  Os erros enviados ao Sentry do projeto também passam a chegar com o código legível, porque o
+  build da imagem agora envia os mapas do código ao Sentry.
+
 ## [1.18.0] — 2026-10-05
 
 ### Adicionado
@@ -3284,7 +3300,8 @@ Primeira versão marcada do DeskcommCRM. O projeto vinha sendo desenvolvido publ
 
 - **Node 22 é obrigatório para desenvolvimento.** A suíte de invariantes instancia o cliente do Supabase, que exige o `WebSocket` global — nativo apenas a partir do Node 22. Isso não afeta quem apenas hospeda: a VPS roda a imagem pronta.
 
-[Não lançado]: https://github.com/Sciuba/CRMPI/compare/v1.18.0...HEAD
+[Não lançado]: https://github.com/Sciuba/CRMPI/compare/v1.18.1...HEAD
+[1.18.1]: https://github.com/Sciuba/CRMPI/compare/v1.18.0...v1.18.1
 [1.18.0]: https://github.com/Sciuba/CRMPI/compare/v1.17.0...v1.18.0
 [1.17.0]: https://github.com/melgarafael/DeskcommCRM/compare/v1.16.1...v1.17.0
 [1.16.1]: https://github.com/melgarafael/DeskcommCRM/compare/v1.16.0...v1.16.1
