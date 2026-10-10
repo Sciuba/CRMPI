@@ -23350,3 +23350,40 @@ grant execute on function public.fn_decrypt_oauth(bytea) to service_role;
 grant execute on function public.fn_encrypt_oauth(text) to service_role;
 grant execute on function public.fn_lgpd_cascade_redact_contact(uuid, uuid, uuid) to service_role;
 grant execute on function public.fn_update_budget_consumption() to service_role;
+
+-- ---- catálogo Google: Gemini 3.8 Flash, 3.5 Flash-Lite e 3.1 Flash-Lite (migration 0233) ----
+-- Ids verificados com GET /v1beta/models numa chave real em 2026-10-09; preços da página
+-- oficial. O padrão do Google não muda. Idempotente por `on conflict do update`.
+insert into public.ai_models
+  (provider, model_id, display_name, description,
+   input_price_per_million_cents, output_price_per_million_cents, supports_tools)
+values
+  ('google', 'gemini-3.8-flash', 'Gemini 3.8 Flash',
+   'O Flash mais novo do Google. Preço de introdução (US$0,75/US$3,75 por milhão) até 31/12/2026; a partir de 01/01/2027 passa a US$1,50/US$7,50 — reveja este preço nessa data.',
+   75, 375, true),
+  ('google', 'gemini-3.5-flash-lite', 'Gemini 3.5 Flash-Lite',
+   'Barato e rápido, para classificação e tarefas simples.',
+   30, 250, true),
+  ('google', 'gemini-3.1-flash-lite', 'Gemini 3.1 Flash-Lite',
+   'O mais barato desta lista, para classificação e tarefas simples.',
+   25, 150, true)
+on conflict (provider, model_id) do update set
+  display_name = excluded.display_name,
+  description = excluded.description,
+  input_price_per_million_cents = excluded.input_price_per_million_cents,
+  output_price_per_million_cents = excluded.output_price_per_million_cents,
+  supports_tools = excluded.supports_tools;
+
+-- A MESMA lista na contabilidade de custo, senão o gasto é calculado com o preço
+-- de outro modelo — ou não é calculado, e o teto de orçamento nunca dispara.
+insert into public.ai_pricing
+  (model, prompt_cents_per_million_tokens, completion_cents_per_million_tokens, notes)
+values
+  ('gemini-3.8-flash',      75,  375, 'catálogo 0233 — introdução até 31/12/2026; depois 150/750'),
+  ('gemini-3.5-flash-lite', 30,  250, 'catálogo 0233'),
+  ('gemini-3.1-flash-lite', 25,  150, 'catálogo 0233 — áudio de entrada custa 50')
+on conflict (model) do update set
+  prompt_cents_per_million_tokens = excluded.prompt_cents_per_million_tokens,
+  completion_cents_per_million_tokens = excluded.completion_cents_per_million_tokens,
+  notes = excluded.notes,
+  superseded_at = null;
