@@ -123,6 +123,12 @@ export function useRealtimeChannel(opts: UseRealtimeChannelOpts): {
     let active: RealtimeChannel | null = null;
     let cancelado = false;
     let tentativas = 0;
+    // O sufixo do NOME do canal. Separado de `tentativas` de propósito: aquele
+    // é o recuo e volta a 0 quando o canal assina; este só cresce. Usar o
+    // mesmo contador repetia o nome `…#1` na 2ª queda, e o supabase-js devolve
+    // o canal que já existe (já assinado, e o `removeChannel` do anterior é
+    // assíncrono) — `.on()` nele lança e a retomada morre sem ninguém ver.
+    let geracao = 0;
     let retomada: ReturnType<typeof setTimeout> | null = null;
     setStatus("connecting");
 
@@ -157,7 +163,7 @@ export function useRealtimeChannel(opts: UseRealtimeChannelOpts): {
       }
       if (cancelado) return;
 
-      let novo: RealtimeChannel = supabase.channel(`${channelName}#${tentativas}`);
+      let novo: RealtimeChannel = supabase.channel(`${channelName}#${geracao++}`);
       if (postgresChanges) {
         novo = novo.on(
           "postgres_changes",
