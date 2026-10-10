@@ -8,6 +8,19 @@ Se você roda o DeskcommCRM numa VPS, **leia a seção da versão para a qual es
 
 ## [Não lançado]
 
+## [1.19.0] — 2026-10-10
+
+### Adicionado
+
+- **Gemini 3.8 Flash, 3.5 Flash-Lite e 3.1 Flash-Lite no catálogo de modelos** O catálogo do Google parava no Gemini 3.5 Flash, e o Google é o único provedor sem
+  sincronização automática — modelo novo só aparecia com uma release. Entram três
+  modelos, com ids conferidos na API do Google e preços da página oficial:
+  `gemini-3.8-flash`, `gemini-3.5-flash-lite` e `gemini-3.1-flash-lite`.
+
+  O 3.8 Flash tem preço de introdução até 31/12/2026; o catálogo grava o preço de hoje
+  e precisa ser revisto em 01/01/2027. O modelo padrão do Google e o `gemini-2.5-flash`
+  não mudam. Nada a fazer: o `update.sh` aplica o catálogo.
+
 ## [1.18.1] — 2026-10-06
 
 ### Corrigido
@@ -3300,7 +3313,8 @@ Primeira versão marcada do DeskcommCRM. O projeto vinha sendo desenvolvido publ
 
 - **Node 22 é obrigatório para desenvolvimento.** A suíte de invariantes instancia o cliente do Supabase, que exige o `WebSocket` global — nativo apenas a partir do Node 22. Isso não afeta quem apenas hospeda: a VPS roda a imagem pronta.
 
-[Não lançado]: https://github.com/Sciuba/CRMPI/compare/v1.18.1...HEAD
+[Não lançado]: https://github.com/Sciuba/CRMPI/compare/v1.19.0...HEAD
+[1.19.0]: https://github.com/Sciuba/CRMPI/compare/v1.18.1...v1.19.0
 [1.18.1]: https://github.com/Sciuba/CRMPI/compare/v1.18.0...v1.18.1
 [1.18.0]: https://github.com/Sciuba/CRMPI/compare/v1.17.0...v1.18.0
 [1.17.0]: https://github.com/melgarafael/DeskcommCRM/compare/v1.16.1...v1.17.0
