@@ -26,7 +26,7 @@ describe("insert direto em event_log", () => {
         const src = readFileSync(arq, "utf8");
         const re = /\.from\(\s*"event_log"\s*\)\s*\.insert\(\s*\{([\s\S]*?)\}\s*(?:as never\s*)?\)/g;
         for (const m of src.matchAll(re)) {
-          if (!/\bentity_kind\b/.test(m[1])) sem.push(arq);
+          if (!/\bentity_kind\b/.test(m[1] ?? ""))sem.push(arq);
         }
       }
     }
