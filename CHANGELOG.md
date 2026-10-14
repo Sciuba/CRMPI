@@ -8,6 +8,16 @@ Se você roda o DeskcommCRM numa VPS, **leia a seção da versão para a qual es
 
 ## [Não lançado]
 
+## [1.19.1] — 2026-10-13
+
+### Corrigido
+
+- **O inbox e os avisos voltam a atualizar sozinhos depois de duas quedas seguidas de conexão** Quando a conexão em tempo real caía, voltava e caía de novo, a segunda tentativa de
+  reconexão usava o mesmo nome de canal da primeira e falhava com "cannot add
+  postgres_changes callbacks after subscribe()". O canal ficava morto, sem aviso, e a
+  tela só voltava a atualizar depois de recarregar a página. Agora cada reconexão usa um
+  nome novo.
+
 ## [1.19.0] — 2026-10-10
 
 ### Adicionado
@@ -3313,7 +3323,8 @@ Primeira versão marcada do DeskcommCRM. O projeto vinha sendo desenvolvido publ
 
 - **Node 22 é obrigatório para desenvolvimento.** A suíte de invariantes instancia o cliente do Supabase, que exige o `WebSocket` global — nativo apenas a partir do Node 22. Isso não afeta quem apenas hospeda: a VPS roda a imagem pronta.
 
-[Não lançado]: https://github.com/Sciuba/CRMPI/compare/v1.19.0...HEAD
+[Não lançado]: https://github.com/Sciuba/CRMPI/compare/v1.19.1...HEAD
+[1.19.1]: https://github.com/Sciuba/CRMPI/compare/v1.19.0...v1.19.1
 [1.19.0]: https://github.com/Sciuba/CRMPI/compare/v1.18.1...v1.19.0
 [1.18.1]: https://github.com/Sciuba/CRMPI/compare/v1.18.0...v1.18.1
 [1.18.0]: https://github.com/Sciuba/CRMPI/compare/v1.17.0...v1.18.0
