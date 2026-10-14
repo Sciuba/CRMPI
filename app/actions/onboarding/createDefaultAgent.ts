@@ -244,6 +244,8 @@ export async function createDefaultAgent(formData: FormData): Promise<CreateAgen
   await admin.from("event_log").insert({
     organization_id: ctx.orgId,
     event_type: "ai_agent.created",
+    entity_kind: "ai_agent",
+    entity_id: agent.id,
     payload: { agent_id: agent.id, source: "onboarding", published: publicacao.published },
   });
 

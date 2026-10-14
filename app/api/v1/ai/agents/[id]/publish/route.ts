@@ -107,6 +107,8 @@ export async function POST(req: NextRequest, ctx: Ctx): Promise<Response> {
     .insert({
       organization_id: activeOrg.orgId,
       event_type: "ai_agent.published",
+      entity_kind: "ai_agent",
+      entity_id: result.agent_id,
       payload: {
         agent_id: result.agent_id,
         version_id: result.version_id,
