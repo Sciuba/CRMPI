@@ -39,6 +39,14 @@ test("suporte mantém identidade, opera B e encerra sem misturar A; readonly/exp
    if(request.method()==="POST" && ["/login","/app/settings/tenant"].includes(new URL(request.url()).pathname)) knownServerActions.add(request);
   });
   context.on("requestfinished", request => pendingMutations.delete(request));
+  // Server action responde só DEPOIS de executar; o stream RSC que segue pode
+  // ficar aberto e `requestfinished` nunca disparar. Cabeçalho de resposta = a
+  // mutação terminou no servidor, então não é "em voo" (mesma premissa de
+  // `acknowledgeKnownAction`, aplicada a toda action e não só às conhecidas).
+  context.on("response", response => {
+   const request = response.request();
+   if (request.method() === "POST" && request.headers()["next-action"]) pendingMutations.delete(request);
+  });
   // Cancelamento após envio não prova que a transação no servidor terminou.
   context.on("requestfailed", request => { if (blockedBeforeSend.has(request)) pendingMutations.delete(request); });
  };
@@ -232,8 +240,13 @@ test("suporte mantém identidade, opera B e encerra sem misturar A; readonly/exp
      blockedBeforeSend.add(request);pendingMutations.delete(request);await route.abort("aborted");
     }else await route.continue();
    })));
-   await expect.poll(()=>pendingMutations.size,{timeout:20000,
-    message:"Mutações enviadas devem concluir antes de fechar contextos ou apagar fixtures"}).toBe(0);
+   try {
+    await expect.poll(()=>pendingMutations.size,{timeout:20000,
+     message:"Mutações enviadas devem concluir antes de fechar contextos ou apagar fixtures"}).toBe(0);
+   } catch(pollError) {
+    // Sem isto a falha diz "1 pendente" e não QUAL — foi o que impediu achar a causa.
+    throw new Error(`Mutações pendentes no teardown: ${JSON.stringify(pendingMutationDescriptions())}`,{cause:pollError});
+   }
    const closing = await Promise.allSettled([
     ...page.context().pages().map(ownedPage => ownedPage.close()),
     ...(second ? [second.close()] : []),
