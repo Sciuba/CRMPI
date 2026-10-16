@@ -39,6 +39,13 @@ test("suporte mantém identidade, opera B e encerra sem misturar A; readonly/exp
    if(request.method()==="POST" && ["/login","/app/settings/tenant"].includes(new URL(request.url()).pathname)) knownServerActions.add(request);
   });
   context.on("requestfinished", request => pendingMutations.delete(request));
+  // Resposta recebida = o servidor terminou a mutação. `requestfinished` NÃO é
+  // sinal confiável disso: se a página navega enquanto o corpo ainda é lido (o
+  // `POST /api/v1/admin/impersonate/end` do "Sair do acompanhamento" seguido de
+  // `waitForURL`), o Playwright emite `requestfailed` mesmo com 200 já recebido,
+  // e a requisição ficava "em voo" para sempre. Idem o stream RSC de uma server
+  // action, que fica aberto depois de a action concluir.
+  context.on("response", response => pendingMutations.delete(response.request()));
   // Cancelamento após envio não prova que a transação no servidor terminou.
   context.on("requestfailed", request => { if (blockedBeforeSend.has(request)) pendingMutations.delete(request); });
  };
@@ -232,8 +239,13 @@ test("suporte mantém identidade, opera B e encerra sem misturar A; readonly/exp
      blockedBeforeSend.add(request);pendingMutations.delete(request);await route.abort("aborted");
     }else await route.continue();
    })));
-   await expect.poll(()=>pendingMutations.size,{timeout:20000,
-    message:"Mutações enviadas devem concluir antes de fechar contextos ou apagar fixtures"}).toBe(0);
+   try {
+    await expect.poll(()=>pendingMutations.size,{timeout:20000,
+     message:"Mutações enviadas devem concluir antes de fechar contextos ou apagar fixtures"}).toBe(0);
+   } catch(pollError) {
+    // Sem isto a falha diz "1 pendente" e não QUAL — foi o que impediu achar a causa.
+    throw new Error(`Mutações pendentes no teardown: ${JSON.stringify(pendingMutationDescriptions())}`,{cause:pollError});
+   }
    const closing = await Promise.allSettled([
     ...page.context().pages().map(ownedPage => ownedPage.close()),
     ...(second ? [second.close()] : []),

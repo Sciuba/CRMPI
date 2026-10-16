@@ -221,19 +221,47 @@ test.describe("navegação agrupada", () => {
     await page.setViewportSize({ width: 1280, height: 900 });
     await loginAdmin(page);
 
-    const m = await page.evaluate(() => {
-      const nav = document.querySelector('nav[aria-label="Navegação principal"]')!;
-      const r = nav.getBoundingClientRect();
-      return {
-        rola: nav.scrollHeight > Math.round(r.height) + 1,
-        titulosFora: [...nav.querySelectorAll("h2")].filter(
-          (h) => h.getBoundingClientRect().bottom > r.bottom,
-        ).length,
-      };
-    });
+    // O menu cabe com poucos px de folga em 900px. Medir uma vez, logo após o
+    // `loginAdmin`, reprovava na 1ª tentativa e passava na repetição — a página
+    // ainda estava carregando (o screenshot da falha mostra o esqueleto do Inbox
+    // e "Conectando…" na Conexões). Hipótese: o layout do menu ainda mudava. O
+    // que importa é o estado ESTÁVEL; o poll espera por ele e, se nunca chegar,
+    // a falha mostra as medidas reais (scrollHeight x altura) em vez de um booleano.
+    const medir = () =>
+      page.evaluate(() => {
+        const nav = document.querySelector('nav[aria-label="Navegação principal"]')!;
+        const r = nav.getBoundingClientRect();
+        return {
+          rola: nav.scrollHeight > Math.round(r.height) + 1,
+          scrollHeight: nav.scrollHeight,
+          altura: Math.round(r.height),
+          // Diagnóstico: onde estão os pixels. Filhos diretos do nav e o que mora
+          // abaixo dele no sidebar (rodapé com Configurações, versão e Recolher).
+          filhos: [...nav.children].map((c) => Math.round(c.getBoundingClientRect().height)),
+          rodape: [...(nav.parentElement?.children ?? [])]
+            .filter((c) => c !== nav)
+            .map((c) => `${c.tagName}:${Math.round(c.getBoundingClientRect().height)}:${(c.textContent ?? "").trim().slice(0, 40)}`),
+          titulosFora: [...nav.querySelectorAll("h2")].filter(
+            (h) => h.getBoundingClientRect().bottom > r.bottom,
+          ).length,
+        };
+      });
 
-    expect(m.titulosFora, "grupo inteiro invisível é o problema que viemos resolver").toBe(0);
-    expect(m.rola, "em 900px o menu inteiro tem de caber sem scroll").toBe(false);
+    // `toMatchObject` só imprime as chaves que DIFEREM — as medidas sumiam da
+    // falha. Poll sobre o veredito; se estourar, a falha carrega a última medida.
+    try {
+      await expect
+        .poll(async () => {
+          const m = await medir();
+          return m.rola === false && m.titulosFora === 0;
+        }, { timeout: 15_000 })
+        .toBe(true);
+    } catch (erro) {
+      throw new Error(
+        `em 900px o menu inteiro tem de caber sem scroll, sem grupo fora da dobra. Medida: ${JSON.stringify(await medir())}`,
+        { cause: erro },
+      );
+    }
   });
 
   test.describe("mobile", () => {
