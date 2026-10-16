@@ -39,14 +39,13 @@ test("suporte mantém identidade, opera B e encerra sem misturar A; readonly/exp
    if(request.method()==="POST" && ["/login","/app/settings/tenant"].includes(new URL(request.url()).pathname)) knownServerActions.add(request);
   });
   context.on("requestfinished", request => pendingMutations.delete(request));
-  // Server action responde só DEPOIS de executar; o stream RSC que segue pode
-  // ficar aberto e `requestfinished` nunca disparar. Cabeçalho de resposta = a
-  // mutação terminou no servidor, então não é "em voo" (mesma premissa de
-  // `acknowledgeKnownAction`, aplicada a toda action e não só às conhecidas).
-  context.on("response", response => {
-   const request = response.request();
-   if (request.method() === "POST" && request.headers()["next-action"]) pendingMutations.delete(request);
-  });
+  // Resposta recebida = o servidor terminou a mutação. `requestfinished` NÃO é
+  // sinal confiável disso: se a página navega enquanto o corpo ainda é lido (o
+  // `POST /api/v1/admin/impersonate/end` do "Sair do acompanhamento" seguido de
+  // `waitForURL`), o Playwright emite `requestfailed` mesmo com 200 já recebido,
+  // e a requisição ficava "em voo" para sempre. Idem o stream RSC de uma server
+  // action, que fica aberto depois de a action concluir.
+  context.on("response", response => pendingMutations.delete(response.request()));
   // Cancelamento após envio não prova que a transação no servidor terminou.
   context.on("requestfailed", request => { if (blockedBeforeSend.has(request)) pendingMutations.delete(request); });
  };
