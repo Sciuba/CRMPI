@@ -235,18 +235,33 @@ test.describe("navegação agrupada", () => {
           rola: nav.scrollHeight > Math.round(r.height) + 1,
           scrollHeight: nav.scrollHeight,
           altura: Math.round(r.height),
+          // Diagnóstico: onde estão os pixels. Filhos diretos do nav e o que mora
+          // abaixo dele no sidebar (rodapé com Configurações, versão e Recolher).
+          filhos: [...nav.children].map((c) => Math.round(c.getBoundingClientRect().height)),
+          rodape: [...(nav.parentElement?.children ?? [])]
+            .filter((c) => c !== nav)
+            .map((c) => `${c.tagName}:${Math.round(c.getBoundingClientRect().height)}:${(c.textContent ?? "").trim().slice(0, 40)}`),
           titulosFora: [...nav.querySelectorAll("h2")].filter(
             (h) => h.getBoundingClientRect().bottom > r.bottom,
           ).length,
         };
       });
 
-    await expect
-      .poll(medir, {
-        timeout: 15_000,
-        message: "em 900px o menu inteiro tem de caber sem scroll, sem grupo fora da dobra",
-      })
-      .toMatchObject({ rola: false, titulosFora: 0 });
+    // `toMatchObject` só imprime as chaves que DIFEREM — as medidas sumiam da
+    // falha. Poll sobre o veredito; se estourar, a falha carrega a última medida.
+    try {
+      await expect
+        .poll(async () => {
+          const m = await medir();
+          return m.rola === false && m.titulosFora === 0;
+        }, { timeout: 15_000 })
+        .toBe(true);
+    } catch (erro) {
+      throw new Error(
+        `em 900px o menu inteiro tem de caber sem scroll, sem grupo fora da dobra. Medida: ${JSON.stringify(await medir())}`,
+        { cause: erro },
+      );
+    }
   });
 
   test.describe("mobile", () => {
