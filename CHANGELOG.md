@@ -8,16 +8,6 @@ Se você roda o DeskcommCRM numa VPS, **leia a seção da versão para a qual es
 
 ## [Não lançado]
 
-## [1.19.2] — 2026-10-14
-
-### Corrigido
-
-- **Publicar um agente e concluir o onboarding voltam a registrar o evento no histórico do sistema** Ao publicar um agente (ou reverter para uma versão), criar o agente padrão no onboarding
-  e concluir o onboarding, o evento correspondente era recusado pelo banco com "null value
-  in column entity_kind" e se perdia — só aparecia no log do app. A publicação em si
-  funcionava; o que faltava era o registro do evento. Agora ele é gravado com o tipo e o id
-  da entidade.
-
 ## [1.19.1] — 2026-10-13
 
 ### Corrigido
@@ -3333,8 +3323,7 @@ Primeira versão marcada do DeskcommCRM. O projeto vinha sendo desenvolvido publ
 
 - **Node 22 é obrigatório para desenvolvimento.** A suíte de invariantes instancia o cliente do Supabase, que exige o `WebSocket` global — nativo apenas a partir do Node 22. Isso não afeta quem apenas hospeda: a VPS roda a imagem pronta.
 
-[Não lançado]: https://github.com/Sciuba/CRMPI/compare/v1.19.2...HEAD
-[1.19.2]: https://github.com/Sciuba/CRMPI/compare/v1.19.1...v1.19.2
+[Não lançado]: https://github.com/Sciuba/CRMPI/compare/v1.19.1...HEAD
 [1.19.1]: https://github.com/Sciuba/CRMPI/compare/v1.19.0...v1.19.1
 [1.19.0]: https://github.com/Sciuba/CRMPI/compare/v1.18.1...v1.19.0
 [1.18.1]: https://github.com/Sciuba/CRMPI/compare/v1.18.0...v1.18.1
