@@ -221,19 +221,32 @@ test.describe("navegação agrupada", () => {
     await page.setViewportSize({ width: 1280, height: 900 });
     await loginAdmin(page);
 
-    const m = await page.evaluate(() => {
-      const nav = document.querySelector('nav[aria-label="Navegação principal"]')!;
-      const r = nav.getBoundingClientRect();
-      return {
-        rola: nav.scrollHeight > Math.round(r.height) + 1,
-        titulosFora: [...nav.querySelectorAll("h2")].filter(
-          (h) => h.getBoundingClientRect().bottom > r.bottom,
-        ).length,
-      };
-    });
+    // O menu cabe com poucos px de folga em 900px. Medir uma vez, logo após o
+    // `loginAdmin`, reprovava na 1ª tentativa e passava na repetição — a página
+    // ainda estava carregando (o screenshot da falha mostra o esqueleto do Inbox
+    // e "Conectando…" na Conexões). Hipótese: o layout do menu ainda mudava. O
+    // que importa é o estado ESTÁVEL; o poll espera por ele e, se nunca chegar,
+    // a falha mostra as medidas reais (scrollHeight x altura) em vez de um booleano.
+    const medir = () =>
+      page.evaluate(() => {
+        const nav = document.querySelector('nav[aria-label="Navegação principal"]')!;
+        const r = nav.getBoundingClientRect();
+        return {
+          rola: nav.scrollHeight > Math.round(r.height) + 1,
+          scrollHeight: nav.scrollHeight,
+          altura: Math.round(r.height),
+          titulosFora: [...nav.querySelectorAll("h2")].filter(
+            (h) => h.getBoundingClientRect().bottom > r.bottom,
+          ).length,
+        };
+      });
 
-    expect(m.titulosFora, "grupo inteiro invisível é o problema que viemos resolver").toBe(0);
-    expect(m.rola, "em 900px o menu inteiro tem de caber sem scroll").toBe(false);
+    await expect
+      .poll(medir, {
+        timeout: 15_000,
+        message: "em 900px o menu inteiro tem de caber sem scroll, sem grupo fora da dobra",
+      })
+      .toMatchObject({ rola: false, titulosFora: 0 });
   });
 
   test.describe("mobile", () => {
