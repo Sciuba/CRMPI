@@ -8,6 +8,16 @@ Se você roda o DeskcommCRM numa VPS, **leia a seção da versão para a qual es
 
 ## [Não lançado]
 
+## [1.19.3] — 2026-10-20
+
+### Corrigido
+
+- **A imagem deixa de depender de baixar fontes do Google durante o build** As fontes da interface (Atkinson Hyperlegible e IBM Plex Mono) eram baixadas do Google
+  a cada build da imagem, e um problema de rede no servidor de build impedia a publicação
+  da versão. Agora elas vêm empacotadas no próprio código. A aparência é a mesma; só os
+  caracteres fora do alfabeto latino básico (por exemplo, letras do polonês ou do tcheco)
+  passam a usar a fonte do sistema.
+
 ## [1.19.2] — 2026-10-16
 
 ### Corrigido
@@ -3333,7 +3343,8 @@ Primeira versão marcada do DeskcommCRM. O projeto vinha sendo desenvolvido publ
 
 - **Node 22 é obrigatório para desenvolvimento.** A suíte de invariantes instancia o cliente do Supabase, que exige o `WebSocket` global — nativo apenas a partir do Node 22. Isso não afeta quem apenas hospeda: a VPS roda a imagem pronta.
 
-[Não lançado]: https://github.com/Sciuba/CRMPI/compare/v1.19.2...HEAD
+[Não lançado]: https://github.com/Sciuba/CRMPI/compare/v1.19.3...HEAD
+[1.19.3]: https://github.com/Sciuba/CRMPI/compare/v1.19.2...v1.19.3
 [1.19.2]: https://github.com/Sciuba/CRMPI/compare/v1.19.1...v1.19.2
 [1.19.1]: https://github.com/Sciuba/CRMPI/compare/v1.19.0...v1.19.1
 [1.19.0]: https://github.com/Sciuba/CRMPI/compare/v1.18.1...v1.19.0
