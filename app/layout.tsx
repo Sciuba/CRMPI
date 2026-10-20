@@ -1,5 +1,5 @@
 import type { Metadata, Viewport } from "next";
-import { Atkinson_Hyperlegible, IBM_Plex_Mono } from "next/font/google";
+import localFont from "next/font/local";
 import { headers } from "next/headers";
 import { Toaster } from "sonner";
 import { coresDaBarraDoNavegador } from "@/lib/branding/barra-do-navegador";
@@ -25,16 +25,28 @@ import { Providers } from "./providers";
 import { PublicEnvScript } from "./public-env-script";
 import "./globals.css";
 
-const atkinson = Atkinson_Hyperlegible({
-  subsets: ["latin", "latin-ext"],
-  weight: ["400", "700"],
+// Fontes EMPACOTADAS no repositório (`app/fonts/`), nunca baixadas do Google
+// no build: `next/font/google` busca as fontes na rede durante o `next build`,
+// e o CI da imagem falhou três vezes por isso ("Can't resolve
+// '@vercel/turbopack-next/internal/font/google/font'") — a imagem que a VPS
+// puxa deixava de existir por um flake de DNS do runner. Mesmo efeito de antes
+// (a custom property no `<html>`, `display: swap`), só que sem rede.
+// Subconjunto `latin` (cobre PT, ES e EN); glifo fora dele cai na fonte do
+// sistema. Licença das duas: SIL OFL 1.1.
+const atkinson = localFont({
+  src: [
+    { path: "./fonts/atkinson-hyperlegible-latin-400-normal.woff2", weight: "400", style: "normal" },
+    { path: "./fonts/atkinson-hyperlegible-latin-700-normal.woff2", weight: "700", style: "normal" },
+  ],
   display: "swap",
   variable: "--font-atkinson",
 });
 
-const plexMono = IBM_Plex_Mono({
-  subsets: ["latin", "latin-ext"],
-  weight: ["400", "500"],
+const plexMono = localFont({
+  src: [
+    { path: "./fonts/ibm-plex-mono-latin-400-normal.woff2", weight: "400", style: "normal" },
+    { path: "./fonts/ibm-plex-mono-latin-500-normal.woff2", weight: "500", style: "normal" },
+  ],
   display: "swap",
   variable: "--font-mono",
 });
