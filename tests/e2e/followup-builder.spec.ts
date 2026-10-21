@@ -22,6 +22,25 @@ const CREDS_PATH = path.join(process.cwd(), ".e2e-creds.json");
 const ARTIFACTS_DIR = path.join(process.cwd(), "e2e-artifacts");
 fs.mkdirSync(ARTIFACTS_DIR, { recursive: true });
 
+/**
+ * Clica em "Publicar" depois de dispensar os toasts que ainda estejam na tela.
+ * O Toaster fica em `top-right`, exatamente em cima do botão, e um toast de
+ * sucesso que sobra do passo anterior o intercepta: o Playwright reportou 42
+ * tentativas de clique ("<li data-sonner-toast> intercepts pointer events")
+ * até estourar os 30s. Esperar o toast sumir sozinho não é garantia (o Sonner
+ * pausa o relógio com o ponteiro em cima ou a aba oculta), então fecha-se pelo
+ * botão que o próprio Toaster oferece (`closeButton`).
+ */
+async function publicar(page: Page): Promise<void> {
+  await page.evaluate(() => {
+    document
+      .querySelectorAll<HTMLElement>("[data-sonner-toast] [data-close-button]")
+      .forEach((b) => b.click());
+  });
+  await expect(page.locator("[data-sonner-toast]")).toHaveCount(0);
+  await page.getByTestId("publish-button").click();
+}
+
 interface Creds {
   password: string;
   users: Record<string, { email: string }>;
@@ -396,7 +415,7 @@ test.describe("followup flow builder — canvas visual (Task 6.2)", () => {
     });
 
     // 4. Publish INCOMPLETE — expect 422 anchored to the offending nodes.
-    await page.getByTestId("publish-button").click();
+    await publicar(page);
     await expect(page.getByText(/reprovado na validação/i)).toBeVisible();
     await expect(page.locator(`[data-testid="node-error-${waitId}"]`)).toBeVisible();
     await expect(page.locator(`[data-testid="node-error-${actionId}"]`)).toBeVisible();
@@ -411,7 +430,7 @@ test.describe("followup flow builder — canvas visual (Task 6.2)", () => {
     await expect(page.locator(".react-flow__edge")).toHaveCount(3);
 
     // 6. Publish for real — expect success + "Ativo" badge + toast.
-    await page.getByTestId("publish-button").click();
+    await publicar(page);
     await expect(page.getByText("Fluxo publicado.")).toBeVisible();
     await expect(page.locator('[aria-label="status: Ativo"]')).toBeVisible();
     await expect(page.locator(`[data-testid="node-error-${waitId}"]`)).toHaveCount(0);
@@ -631,7 +650,7 @@ test.describe("followup flow builder — editor de condição de aresta / ai_cla
     // 5. NEGATIVE CHECK — publish with every classify-outgoing edge still `always` (the
     // Task 6.2 state, before this task's editor existed). It must fail: `ai_classify`
     // has no `class_match` edge for either declared class and no `no_reply` edge.
-    await page.getByTestId("publish-button").click();
+    await publicar(page);
     await expect(page.getByText(/reprovado na validação/i)).toBeVisible();
     await expect(page.locator(`[data-testid="node-error-${classifyId}"]`)).toBeVisible();
     // Exactly one node carries an error — proves the failure is scoped to the classify
@@ -666,7 +685,7 @@ test.describe("followup flow builder — editor de condição de aresta / ai_cla
 
     // 7. Publish for real — expect SUCCESS this time, where the identical graph shape
     // with all-`always` edges failed above.
-    await page.getByTestId("publish-button").click();
+    await publicar(page);
     await expect(page.getByText("Fluxo publicado.")).toBeVisible();
     await expect(page.locator('[aria-label="status: Ativo"]')).toBeVisible();
     await expect(page.locator(`[data-testid="node-error-${classifyId}"]`)).toHaveCount(0);

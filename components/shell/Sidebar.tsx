@@ -183,6 +183,16 @@ export function SidebarContent({
         mais densidade raspada. A conta é fechada e vale conferir antes de abrir
         o PR: cada linha custa 32px (28px de altura + 4px de `space-y-1`), e
         trocar N destinos do menu por um único link de hub devolve (N-1)×32px.
+
+        ⚠️ OS "19px de folga" ACIMA ERAM SEM A LINHA DE VERSÃO. O rodapé (Configurações,
+        "versão X" e Recolher) só ganha a linha de versão quando `useSystemVersion`
+        responde, e ela custa 25px: com ela o `nav` tem 739px para 744px de conteúdo
+        em 1280×900 — 5px de excesso, no estado ESTÁVEL. O e2e só passava quando
+        media antes do fetch (e reprovava quando depois), o que parecia "flake de
+        carregamento" e era um menu que não cabia. Devolvidos 12px no rodapé
+        (Recolher `py-2`→`py-1`, versão `py-1`→`py-0.5`), sem tocar nos 28px dos
+        links: folga de 7px com a versão, e o `e2e` agora ESPERA a linha de versão
+        antes de medir, para medir o estado que o operador vê.
       */}
       <nav className="flex-1 space-y-2 overflow-y-auto p-2" aria-label={t("Navegação principal")}>
         {grupos.map(({ group, items }) => {
@@ -304,7 +314,7 @@ export function SidebarContent({
             onClick={() => startTransition(() => toggleSidebar(collapsed))}
             disabled={isPending}
             className={cn(
-              "flex w-full items-center gap-2 rounded-md px-3 py-2 text-xs text-muted-foreground hover:bg-accent/50 hover:text-foreground",
+              "flex w-full items-center gap-2 rounded-md px-3 py-1 text-xs text-muted-foreground hover:bg-accent/50 hover:text-foreground",
               collapsed && "justify-center px-2",
             )}
             aria-label={collapsed ? t("Expandir sidebar") : t("Recolher sidebar")}

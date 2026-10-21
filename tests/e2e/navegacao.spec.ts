@@ -219,14 +219,28 @@ test.describe("navegação agrupada", () => {
    */
   test("nenhum grupo fica fora da dobra, e em 900px o menu não rola", async ({ page }) => {
     await page.setViewportSize({ width: 1280, height: 900 });
+    // Registrado ANTES do login: o fetch da versão sai assim que o shell monta, e
+    // uma resposta rápida não pode passar antes de alguém estar ouvindo.
+    const versaoRespondeu = page
+      .waitForResponse((r) => r.url().includes("/api/v1/system/version"), { timeout: 30_000 })
+      .catch(() => null);
     await loginAdmin(page);
 
-    // O menu cabe com poucos px de folga em 900px. Medir uma vez, logo após o
-    // `loginAdmin`, reprovava na 1ª tentativa e passava na repetição — a página
-    // ainda estava carregando (o screenshot da falha mostra o esqueleto do Inbox
-    // e "Conectando…" na Conexões). Hipótese: o layout do menu ainda mudava. O
-    // que importa é o estado ESTÁVEL; o poll espera por ele e, se nunca chegar,
-    // a falha mostra as medidas reais (scrollHeight x altura) em vez de um booleano.
+    // O menu cabe com poucos px de folga em 900px, e o rodapé muda de altura: a
+    // linha "versão X" só aparece quando `useSystemVersion` responde (+25px no
+    // rodapé, que sai da altura do `nav`). Medir antes dela dava um menu que
+    // "cabe"; medir depois dava 744px de conteúdo para 739px — e o teste passava
+    // ou reprovava conforme a corrida com o fetch, o que lia como flake de
+    // carregamento. O estado que o operador vê é o COM a versão: espera-se a
+    // resposta e, se veio boa, a linha na tela — só então se mede. Sem resposta
+    // boa não há linha, e esse também é um estado estável (o rodapé fica menor).
+    const resposta = await versaoRespondeu;
+    if (resposta?.ok()) {
+      await expect(
+        page.getByText(/^versão \d|^Nova versão/i).first(),
+        "o endpoint de versão respondeu, mas o rodapé não desenhou a linha",
+      ).toBeVisible({ timeout: 15_000 });
+    }
     const medir = () =>
       page.evaluate(() => {
         const nav = document.querySelector('nav[aria-label="Navegação principal"]')!;
