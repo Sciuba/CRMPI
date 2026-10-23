@@ -23380,26 +23380,19 @@ begin
   return new;
 end$$;
 
-create or replace function public.fn_emit_conversation_routing() returns trigger
-  language plpgsql
-  security definer
-  set search_path = public
-as $$
+-- Parte da definição VIGENTE (migration 0228, roteamento por canal) e só acrescenta o
+-- guard da importação. Copiar a versão original (0040) apagaria o roteamento por canal.
+create or replace function public.fn_emit_conversation_routing()
+returns trigger language plpgsql security definer set search_path=public as $$
 begin
-  if coalesce(current_setting('app.importando_historico', true), '') = 'on' then
-    return null;
-  end if;
-  perform public.emit_event(
-    'conversation.routing_requested',
-    'conversation',
-    new.id,
-    jsonb_build_object('conversation_id', new.id, 'organization_id', new.organization_id),
-    '{}'::jsonb,
-    new.organization_id
-  );
+ if coalesce(current_setting('app.importando_historico', true), '') = 'on' then
   return null;
+ end if;
+ perform public.fn_request_channel_routing(new.organization_id,new.id);
+ return null;
 end;
 $$;
+revoke all on function public.fn_emit_conversation_routing() from public,anon,authenticated;
 
 -- Importa um lote de mensagens de UM contato. `p_msgs` é um array de
 -- { external_id, direction, type, body, sent_at, midia }. Devolve quantas entraram.

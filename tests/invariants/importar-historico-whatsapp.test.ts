@@ -109,9 +109,10 @@ describe("0235 — importar histórico do WhatsApp", () => {
   it("o marcador de importação não vaza para a transação seguinte", () => {
     const resto = sql(`
       select public.fn_importar_historico_whatsapp('${GOV_ORG}', '${GOV_SESSION}', '${CONTATO}', '[]'::jsonb);
-      select coalesce(current_setting('app.importando_historico', true), '');
+      select '[' || coalesce(current_setting('app.importando_historico', true), '') || ']';
     `);
-    expect(resto.split("\n").pop()).toBe("");
+    // Entre colchetes porque `sql()` apara a saída: um valor vazio sumiria.
+    expect(resto.split("\n").pop()).toBe("[]");
   });
 
   it("recusa sessão de outra organização (o filtro de tenant está na função)", () => {
