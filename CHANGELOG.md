@@ -8,6 +8,14 @@ Se você roda o DeskcommCRM numa VPS, **leia a seção da versão para a qual es
 
 ## [Não lançado]
 
+## [1.19.4] — 2026-10-23
+
+### Corrigido
+
+- **O menu lateral volta a caber inteiro em telas de 900px de altura** Com a linha "versão X.Y.Z" no rodapé do menu lateral, o conteúdo passava 5px da altura
+  disponível em telas de 900px e o menu ganhava uma barra de rolagem. O rodapé ficou um pouco
+  mais compacto (o botão "Recolher" e a linha de versão), e o menu cabe de novo sem rolar.
+
 ## [1.19.3] — 2026-10-20
 
 ### Corrigido
@@ -3343,7 +3351,8 @@ Primeira versão marcada do DeskcommCRM. O projeto vinha sendo desenvolvido publ
 
 - **Node 22 é obrigatório para desenvolvimento.** A suíte de invariantes instancia o cliente do Supabase, que exige o `WebSocket` global — nativo apenas a partir do Node 22. Isso não afeta quem apenas hospeda: a VPS roda a imagem pronta.
 
-[Não lançado]: https://github.com/Sciuba/CRMPI/compare/v1.19.3...HEAD
+[Não lançado]: https://github.com/Sciuba/CRMPI/compare/v1.19.4...HEAD
+[1.19.4]: https://github.com/Sciuba/CRMPI/compare/v1.19.3...v1.19.4
 [1.19.3]: https://github.com/Sciuba/CRMPI/compare/v1.19.2...v1.19.3
 [1.19.2]: https://github.com/Sciuba/CRMPI/compare/v1.19.1...v1.19.2
 [1.19.1]: https://github.com/Sciuba/CRMPI/compare/v1.19.0...v1.19.1
