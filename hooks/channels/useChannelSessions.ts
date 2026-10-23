@@ -2,7 +2,7 @@
 import { useQuery } from "@tanstack/react-query";
 
 import { apiClient } from "@/lib/api/client";
-import type { HistoricoDaSessao } from "@/lib/waha/historico-pedido";
+import type { HistoricoDaSessao } from "@/lib/channels/historico";
 
 export interface ChannelSession {
   id: string;

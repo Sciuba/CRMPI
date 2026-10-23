@@ -33,7 +33,7 @@ só o entrega no pareamento.
 
 Fluxo: `handleSessionStatus` (WORKING) → `pedirImportacaoDoHistorico` (uma vez por sessão, estado em
 `channel_sessions.metadata.historico`) → evento `whatsapp.history_import_requested` →
-`workers/importar-historico-worker.ts` → rodadas de ~40s em `lib/waha/historico.ts` →
+`lib/channels/importar-historico.ts` → rodadas de ~40s em `lib/waha/historico.ts` →
 `fn_importar_historico_whatsapp`. A importação é reexecutável (deduplica por `external_id`).
 
 O que o CRM aceita: pessoas (não grupo, estado, difusão, canal), últimos 90 dias, texto; mídia entra

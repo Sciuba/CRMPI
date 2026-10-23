@@ -1,4 +1,4 @@
-import type { HistoricoDaSessao } from "@/lib/waha/historico-pedido";
+import type { HistoricoDaSessao } from "@/lib/channels/historico";
 
 /**
  * O que dizer, no card do número, sobre o histórico do WhatsApp.

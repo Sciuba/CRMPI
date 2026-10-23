@@ -18,7 +18,7 @@ import { followupGatilhoEtapaHandler } from "@/lib/followup/gatilho-etapa.handle
 import { followupGatilhoCasoHandler } from "@/lib/followup/gatilho-caso.handler";
 import { mediaPersistHandler } from "@/workers/media-persist-worker.handler";
 import { mediaDeriveHandler } from "@/workers/media-derive-worker.handler";
-import { importarHistoricoHandler } from "@/workers/importar-historico-worker.handler";
+import { importarHistoricoHandler } from "@/lib/channels/importar-historico.handler";
 import { webPushInboundHandler } from "@/lib/notifications/push.handler";
 import { conversaoDeVendaHandler } from "@/lib/conversoes/envio.handler";
 import { registerHandler } from "@/lib/event-log/dispatcher";

@@ -5,27 +5,15 @@
  */
 import type { createAdminClient } from "@/lib/supabase/admin";
 import { logger } from "@/lib/logger";
+import {
+  JANELA_DO_HISTORICO_DIAS,
+  type HistoricoDaSessao,
+} from "@/lib/channels/historico";
+
+export { JANELA_DO_HISTORICO_DIAS };
+export type { EstadoDaImportacao, HistoricoDaSessao } from "@/lib/channels/historico";
 
 type Admin = ReturnType<typeof createAdminClient>;
-
-/** Quanto do passado o CRM aceita. É teto do CRM, não do que o celular mandou. */
-export const JANELA_DO_HISTORICO_DIAS = 90;
-
-export type EstadoDaImportacao = "aguardando" | "importando" | "concluido" | "indisponivel";
-
-export interface HistoricoDaSessao {
-  estado: EstadoDaImportacao;
-  pedido_em: string;
-  janela_dias: number;
-  /** Início da janela, fixado na primeira rodada para as seguintes concordarem. */
-  desde_em?: string;
-  /** Posição na lista de conversas do aparelho. */
-  proxima_conversa?: number;
-  conversas_importadas?: number;
-  mensagens_importadas?: number;
-  concluido_em?: string;
-  motivo?: string;
-}
 
 /**
  * Pede a importação — UMA vez por sessão. Chamado quando a sessão chega a WORKING.

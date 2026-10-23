@@ -46,7 +46,7 @@ import {
   JANELA_DO_HISTORICO_DIAS,
   type EstadoDaImportacao,
   type HistoricoDaSessao,
-} from "@/lib/waha/historico-pedido";
+} from "@/lib/channels/historico";
 
 export { JANELA_DO_HISTORICO_DIAS };
 export type { EstadoDaImportacao, HistoricoDaSessao };

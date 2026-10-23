@@ -1,7 +1,7 @@
 import { describe, expect, it } from "vitest";
 
 import { textoDoHistorico } from "@/components/connections/historico-do-canal";
-import type { HistoricoDaSessao } from "@/lib/waha/historico-pedido";
+import type { HistoricoDaSessao } from "@/lib/channels/historico";
 
 const t = (s: string) => s;
 const base = { pedido_em: "2026-10-23T12:00:00.000Z", janela_dias: 90 };

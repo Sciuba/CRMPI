@@ -13,7 +13,7 @@
     { "id": "sessao", "lane": "canal", "col": 1, "type": "external", "label": "createSession com noweb.store + fullSync; pareamento entrega o passado ao store" },
     { "id": "pedido", "lane": "servidor", "col": 2, "type": "lib", "label": "handleSessionStatus WORKING → pedirImportacaoDoHistorico (uma vez por sessão)" },
     { "id": "evento", "lane": "banco", "col": 3, "type": "database", "label": "event_log / whatsapp.history_import_requested" },
-    { "id": "importador", "lane": "servidor", "col": 4, "type": "service", "label": "importar-historico-worker → executarRodadaDoHistorico (rodadas de 40s, retry sem gastar tentativa)" },
+    { "id": "importador", "lane": "servidor", "col": 4, "type": "service", "label": "lib/channels/importar-historico → executarRodadaDoHistorico (rodadas de 40s, retry sem gastar tentativa)" },
     { "id": "rest", "lane": "canal", "col": 4, "type": "external", "label": "REST chats/overview e chats/{id}/messages (sem mídia, janela de 90 dias)" },
     { "id": "funcao", "lane": "banco", "col": 5, "type": "database", "label": "fn_importar_historico_whatsapp (deduplica por external_id; só service_role)" },
     { "id": "mensagens", "lane": "banco", "col": 5, "type": "database", "label": "messages.is_historical / conversations sem não-lida e sem last_inbound_at" },
