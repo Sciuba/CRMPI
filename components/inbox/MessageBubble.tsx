@@ -54,6 +54,11 @@ export function MessageBubble({ message, debugCitations, onResponder, citada, au
   // texto não aparece: mostrá-lo seria expor justamente o que o cliente pediu
   // para tirar do ar.
   const apagada = Boolean(message.revoked_at);
+  // Veio do histórico do aparelho no pareamento: o texto entra, o binário não
+  // (migration 0235). Sem este aviso a bolha ficaria só com a hora, e quem lê
+  // acharia que o cliente mandou uma mensagem em branco.
+  const midiaDoHistorico =
+    !hasMedia && message.type !== "text" && message.metadata?.midia_nao_importada === true;
   const editada = Boolean(message.edited_at) && !apagada;
   const aiGenerated = isAiGeneratedMessage(message.metadata);
   const citations = extractCitations(message.metadata);
@@ -186,6 +191,15 @@ export function MessageBubble({ message, debugCitations, onResponder, citada, au
               <div className={cn(message.body && "mb-1")}>
                 <MediaRenderer message={message} />
               </div>
+            )}
+
+            {midiaDoHistorico && (
+              <p
+                data-testid="midia-do-historico"
+                className={cn("italic leading-snug opacity-60", message.body && "mb-1")}
+              >
+                {t("Mídia do histórico do WhatsApp (não importada)")}
+              </p>
             )}
 
             {isContact && !hasMedia && (

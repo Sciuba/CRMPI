@@ -24,6 +24,7 @@ import { ackToStatus } from "@/lib/types/messaging";
 import type { WahaEnvelope, WahaPayload } from "@/lib/waha/envelope";
 import { bareWaMessageId, chatIdFromWaMessageId } from "@/lib/waha/message-id";
 import { logger } from "@/lib/logger";
+import { pedirImportacaoDoHistorico } from "@/lib/waha/historico-pedido";
 
 export type Admin = ReturnType<typeof createAdminClient>;
 
@@ -202,7 +203,7 @@ export function parseChatId(chatId: string): ChatIdentity {
 }
 
 /** Só estes dois viram contato no CRM — ver a guarda de `upsertContact`. */
-function ehEnderecavel(parsed: ChatIdentity): boolean {
+export function ehEnderecavel(parsed: ChatIdentity): boolean {
   return parsed.kind === "phone" || parsed.kind === "lid";
 }
 
@@ -343,12 +344,12 @@ export function resolveMessageType(p: WahaPayload): string {
   return "text";
 }
 
-function notifyNameOf(p: WahaPayload): string | null {
+export function notifyNameOf(p: WahaPayload): string | null {
   return p._data?.notifyName ?? p._data?.pushName ?? null;
 }
 
 /** Corpo textual: WAHA nem sempre preenche `body` em cartões de contato NOWEB. */
-function bodyOf(p: WahaPayload): string | null {
+export function bodyOf(p: WahaPayload): string | null {
   if (p.body) return p.body;
   const msg = p._data?.message;
   if (!msg || typeof msg !== "object") return null;
@@ -410,7 +411,7 @@ export function telefoneAlternativoDe(p: WahaPayload): string | null {
  * Upsert atômico de contato pela identidade canônica. Retorna null se a
  * identidade for de grupo ou a RPC falhar.
  */
-async function upsertContact(
+export async function upsertContact(
   admin: Admin,
   orgId: string,
   parsed: ChatIdentity,
@@ -1003,6 +1004,21 @@ async function handleSessionStatus(
       (apelidoRow?.phone_number as string | null) ??
       "sem nome",
   );
+
+  // Pareou: o aparelho está entregando o histórico. Pede a importação — uma vez
+  // por sessão (ver `pedirImportacaoDoHistorico`). Falhar aqui nunca derruba o
+  // tratamento do status: o histórico é bônus, a conexão não.
+  if (status === "WORKING") {
+    try {
+      await pedirImportacaoDoHistorico(admin, { id: session.id, organization_id: session.organization_id });
+    } catch (err) {
+      logger.warn("waha.ingest: não consegui pedir a importação do histórico", {
+        organization_id: session.organization_id,
+        channel_session_id: session.id,
+        detail: err instanceof Error ? err.message : String(err),
+      });
+    }
+  }
 }
 
 /**

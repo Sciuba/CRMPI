@@ -9,6 +9,7 @@ import { z } from "zod";
 import { describeWahaServer, type WahaServerCapabilities } from "@/lib/channels/waha-server";
 
 import { logger } from "@/lib/logger";
+import { wahaPayloadSchema, type WahaPayload } from "@/lib/waha/envelope";
 import { classificarFalhaDeAlcance, explicarFalhaDeAlcance } from "@/lib/net/alcance";
 
 /**
@@ -53,6 +54,38 @@ export const CONVERSAS_IGNORADAS = {
   /** Ver o parágrafo acima: o CRM já os descarta na entrada. */
   groups: true,
 } as const;
+
+/**
+ * O store do NOWEB guarda o que o aparelho entrega — e é a única porta do
+ * histórico.
+ *
+ * ─── Por que isto é config da SESSÃO e não de quem importa ──────────────────
+ *
+ * Ao parear um número, o WhatsApp manda o passado das conversas ao aparelho novo
+ * (Baileys: `messaging-history.set`). O WAHA NÃO o devolve por webhook: ele cai no
+ * store e só sai por REST (`chats/{id}/messages`). Com o store desligado — o
+ * padrão —, o evento é descartado e a chamada REST responde 400. E como o
+ * aparelho só entrega o histórico no pareamento, uma sessão criada SEM o store
+ * perdeu o passado para sempre: ligar depois não o traz de volta.
+ *
+ * `fullSync` pede o histórico completo em vez do resumo recente. O que o celular
+ * de fato entrega só se sabe pareando um número real; a janela de importação
+ * (`lib/waha/historico.ts`) corta o que o CRM aceita, não o que o aparelho manda.
+ *
+ * Bônus: `resolvePhoneForLid` também depende do store ligado (ver o comentário
+ * dele). O custo é disco: o store é sqlite em `/app/.sessions`, no volume
+ * `waha-data`.
+ */
+export const HISTORICO_DO_APARELHO = { enabled: true, fullSync: true } as const;
+
+/** A sessão já guarda o histórico do aparelho como queremos? */
+function storeConvergido(config: unknown): boolean {
+  const store = (config as { noweb?: { store?: unknown } } | null | undefined)?.noweb?.store;
+  if (!store || typeof store !== "object") return false;
+  return Object.entries(HISTORICO_DO_APARELHO).every(
+    ([k, v]) => (store as Record<string, unknown>)[k] === v,
+  );
+}
 
 /**
  * Teto de relógio das chamadas ao WAHA.
@@ -147,6 +180,20 @@ export class WahaSessionError extends Error {
     super(`waha_${operation}_${httpStatus}`);
     this.name = "WahaSessionError";
   }
+}
+
+/** Leitura do histórico do aparelho falhou. Só o status — nunca o corpo (ver acima). */
+export class WahaHistoricoError extends Error {
+  constructor(public readonly httpStatus: number) {
+    super(`waha_historico_${httpStatus}`);
+    this.name = "WahaHistoricoError";
+  }
+}
+
+/** Uma conversa como o aparelho a lista. `ultimaEm` em segundos (epoch), se souber. */
+export interface ConversaDoAparelho {
+  id: string;
+  ultimaEm: number | null;
 }
 
 const errorEnvelope = z.object({ statusCode: z.number(), error: z.string(), message: z.string() });
@@ -244,7 +291,11 @@ export class WahaClient {
     const res = await this.fetchComTeto(`${this.baseUrl}/api/sessions`, {
       method: "POST",
       headers: { "X-Api-Key": this.apiKey, "Content-Type": "application/json" },
-      body: JSON.stringify({ name, start: false, config: { ignore: CONVERSAS_IGNORADAS } }),
+      body: JSON.stringify({
+        name,
+        start: false,
+        config: { ignore: CONVERSAS_IGNORADAS, noweb: { store: HISTORICO_DO_APARELHO } },
+      }),
     });
     if (!res.ok && !knownSessionConflict(await res.json().catch(() => null), res.status, "create", name)) {
       throw new WahaSessionError("create", res.status);
@@ -262,7 +313,7 @@ export class WahaClient {
     const ignore = creation.session.config?.ignore;
     const filtersCurrent = ignore && typeof ignore === "object" && Object.entries(CONVERSAS_IGNORADAS)
       .every(([key, value]) => (ignore as Record<string, unknown>)[key] === value);
-    if (!creation.created && !filtersCurrent) await this.convergirConfigDaSessao(name);
+    if (!creation.created && !(filtersCurrent && storeConvergido(creation.session.config))) await this.convergirConfigDaSessao(name);
     return this.startExistingSession(name);
   }
 
@@ -358,7 +409,13 @@ export class WahaClient {
       const sessao = parsed.data;
       if (!sessao.config) return;
 
-      const config = { ...sessao.config, ignore: CONVERSAS_IGNORADAS };
+      const nowebAtual = (sessao.config as { noweb?: Record<string, unknown> }).noweb ?? {};
+      const storeAtual = (nowebAtual.store as Record<string, unknown> | undefined) ?? {};
+      const config = {
+        ...sessao.config,
+        ignore: CONVERSAS_IGNORADAS,
+        noweb: { ...nowebAtual, store: { ...storeAtual, ...HISTORICO_DO_APARELHO } },
+      };
       // Já está como queremos: não reiniciar a sessão à toa. Este caminho roda
       // em TODA reconexão, e um restart desnecessário por rodada seria pior que
       // o gasto que ele evita.
@@ -372,7 +429,7 @@ export class WahaClient {
         Object.entries(CONVERSAS_IGNORADAS).every(
           ([k, v]) => (sessao.config!.ignore as Record<string, unknown>)[k] === v,
         );
-      if (jaConvergida) return;
+      if (jaConvergida && storeConvergido(sessao.config)) return;
 
       const res = await this.fetchComTeto(url, {
         method: "PUT",
@@ -466,6 +523,62 @@ export class WahaClient {
     } catch {
       return null;
     }
+  }
+
+  /**
+   * As conversas que o aparelho entregou, da mais recente para a mais antiga.
+   *
+   * 400 aqui quer dizer "store desligado" (ver `HISTORICO_DO_APARELHO`): a sessão
+   * nasceu sem ele e o histórico não existe para ela. Quem chama decide o que
+   * fazer com `WahaHistoricoError.httpStatus`.
+   */
+  async listarConversasDoAparelho(
+    session: string,
+    { limit, offset }: { limit: number; offset: number },
+  ): Promise<ConversaDoAparelho[]> {
+    const res = await this.fetchComTeto(
+      `${this.baseUrl}/api/${encodeURIComponent(session)}/chats/overview?limit=${limit}&offset=${offset}`,
+      { headers: { "X-Api-Key": this.apiKey } },
+    );
+    if (!res.ok) throw new WahaHistoricoError(res.status);
+    const corpo = await res.json().catch(() => null);
+    if (!Array.isArray(corpo)) return [];
+    const conversas: ConversaDoAparelho[] = [];
+    for (const item of corpo) {
+      const o = item as { id?: unknown; lastMessage?: { timestamp?: unknown } | null };
+      if (typeof o?.id !== "string" || !o.id) continue;
+      const ts = o.lastMessage?.timestamp;
+      conversas.push({ id: o.id, ultimaEm: typeof ts === "number" ? ts : null });
+    }
+    return conversas;
+  }
+
+  /**
+   * Mensagens de UMA conversa, da mais nova para a mais antiga, sem baixar mídia.
+   * `desdeEm` (epoch em segundos) corta a janela no servidor. Itens que não
+   * passam no contrato do payload são descartados, não propagados.
+   */
+  async listarMensagensDoChat(
+    session: string,
+    chatId: string,
+    { limit, offset, desdeEm }: { limit: number; offset: number; desdeEm: number },
+  ): Promise<WahaPayload[]> {
+    const qs =
+      `limit=${limit}&offset=${offset}&downloadMedia=false` +
+      `&sortBy=timestamp&sortOrder=desc&filter.timestamp.gte=${Math.floor(desdeEm)}`;
+    const res = await this.fetchComTeto(
+      `${this.baseUrl}/api/${encodeURIComponent(session)}/chats/${encodeURIComponent(chatId)}/messages?${qs}`,
+      { headers: { "X-Api-Key": this.apiKey } },
+    );
+    if (!res.ok) throw new WahaHistoricoError(res.status);
+    const corpo = await res.json().catch(() => null);
+    if (!Array.isArray(corpo)) return [];
+    const mensagens: WahaPayload[] = [];
+    for (const item of corpo) {
+      const lido = wahaPayloadSchema.safeParse(item);
+      if (lido.success) mensagens.push(lido.data);
+    }
+    return mensagens;
   }
 
   /**

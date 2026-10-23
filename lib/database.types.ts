@@ -5629,6 +5629,7 @@ export type Database = {
           error_message: string | null
           external_id: string | null
           id: string
+          is_historical: boolean
           media_derived_status: string | null
           media_derived_text: string | null
           media_mime: string | null
@@ -5668,6 +5669,7 @@ export type Database = {
           error_message?: string | null
           external_id?: string | null
           id?: string
+          is_historical?: boolean
           media_derived_status?: string | null
           media_derived_text?: string | null
           media_mime?: string | null
@@ -5707,6 +5709,7 @@ export type Database = {
           error_message?: string | null
           external_id?: string | null
           id?: string
+          is_historical?: boolean
           media_derived_status?: string | null
           media_derived_text?: string | null
           media_mime?: string | null
@@ -7985,6 +7988,15 @@ export type Database = {
           p_payload?: Json
         }
         Returns: string
+      }
+      fn_importar_historico_whatsapp: {
+        Args: {
+          p_contact: string
+          p_msgs: Json
+          p_org: string
+          p_session: string
+        }
+        Returns: number
       }
       fn_mark_conversation_message: {
         Args: {

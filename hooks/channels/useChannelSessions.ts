@@ -2,6 +2,7 @@
 import { useQuery } from "@tanstack/react-query";
 
 import { apiClient } from "@/lib/api/client";
+import type { HistoricoDaSessao } from "@/lib/waha/historico-pedido";
 
 export interface ChannelSession {
   id: string;
@@ -21,6 +22,8 @@ export interface ChannelSession {
   daily_message_limit: number;
   is_warmup_complete: boolean | null;
   created_at: string;
+  /** Andamento da importação do histórico do aparelho. Ausente em sessão anterior ao recurso. */
+  historico?: HistoricoDaSessao | null;
 }
 
 export type ConnectionHealth = "connected" | "connecting" | "down" | "none" | "unknown";

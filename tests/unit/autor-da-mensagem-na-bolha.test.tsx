@@ -57,3 +57,22 @@ describe("nome de quem escreveu, na bolha", () => {
     expect(screen.queryByTestId("autor-da-mensagem")).toBeNull();
   });
 });
+
+describe("mídia que veio do histórico do aparelho", () => {
+  it("avisa que o anexo não foi importado, em vez de deixar uma bolha em branco", () => {
+    render(
+      <MessageBubble
+        message={msg({
+          type: "audio", direction: "inbound", body: null, sent_by_user_id: null, sent_by_user_name: null,
+          metadata: { historico: true, midia_nao_importada: true },
+        })}
+      />,
+    );
+    expect(screen.getByTestId("midia-do-historico").textContent).toMatch(/não importada/);
+  });
+
+  it("mensagem de texto comum não ganha o aviso", () => {
+    render(<MessageBubble message={msg({ metadata: { historico: true, midia_nao_importada: false } })} />);
+    expect(screen.queryByTestId("midia-do-historico")).toBeNull();
+  });
+});

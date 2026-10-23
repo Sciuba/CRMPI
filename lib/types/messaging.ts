@@ -79,6 +79,8 @@ export interface Message {
    * resposta pode vir de antes do campo existir.
    */
   sent_by_user_name?: string | null;
+  /** Veio do histórico do aparelho no pareamento (migration 0235). Opcional: respostas antigas não trazem. */
+  is_historical?: boolean;
   sent_at: string;
   delivered_at: string | null;
   read_at: string | null;
