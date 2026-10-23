@@ -15,7 +15,11 @@ import { useRealtimeChannel } from "@/hooks/realtime/useRealtimeChannel";
 export function useAdminInboxRealtime() {
   const qc = useQueryClient();
 
-  const onChange = useCallback(() => {
+  // Histórico importado no pareamento não é movimento novo: ignorá-lo evita uma
+  // recarga da lista por mensagem importada.
+  const onChange = useCallback((payload: unknown) => {
+    const nova = (payload as { new?: { is_historical?: unknown } } | null)?.new;
+    if (nova?.is_historical === true) return;
     void qc.invalidateQueries({ queryKey: ["admin", "inbox"] });
   }, [qc]);
 

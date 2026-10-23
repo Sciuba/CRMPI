@@ -1,9 +1,10 @@
 "use client";
 import { useInfiniteQuery, useQueryClient } from "@tanstack/react-query";
-import { useCallback } from "react";
+import { useCallback, useEffect, useMemo } from "react";
 import { useRealtimeChannel } from "@/hooks/realtime/useRealtimeChannel";
 import { useRefetchDeSeguranca } from "@/hooks/realtime/useRefetchDeSeguranca";
 import { apiClient } from "@/lib/api/client";
+import { agruparRecargas } from "@/lib/realtime/agrupar-recargas";
 import { showApiError } from "@/components/feedback/ApiErrorToast";
 import type { Conversation } from "@/lib/types/messaging";
 import type { ComandoDoBanco } from "@/lib/inbox/comando-da-conversa";
@@ -141,9 +142,15 @@ export function useConversationsRealtime(
     refetchOnWindowFocus: true,
   });
 
-  const onChange = useCallback(() => {
-    qc.invalidateQueries({ queryKey: ["conversations"] });
-  }, [qc]);
+  // Rajada de mudanças (importação do histórico, campanha, merge) vira UMA
+  // recarga por janela; o primeiro aviso continua imediato. Ver o cabeçalho de
+  // `agruparRecargas` para o que acontecia sem isto.
+  const agrupador = useMemo(
+    () => agruparRecargas(() => { void qc.invalidateQueries({ queryKey: ["conversations"] }); }, 2_000),
+    [qc],
+  );
+  useEffect(() => () => agrupador.cancelar(), [agrupador]);
+  const onChange = useCallback(() => agrupador.avisar(), [agrupador]);
 
   // G4-01 (visibility_mode): a subscription postgres_changes HERDA a RLS de
   // SELECT de `conversations` — o Supabase Realtime avalia as policies do usuário
