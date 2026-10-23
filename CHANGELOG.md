@@ -8,6 +8,22 @@ Se você roda o DeskcommCRM numa VPS, **leia a seção da versão para a qual es
 
 ## [Não lançado]
 
+## [1.21.0] — 2026-10-23
+
+### Adicionado
+
+- **Ao parear um número, o histórico do WhatsApp vem para o CRM** Ao conectar um número novo, o CRM passa a trazer as conversas dos últimos 90 dias que o
+  WhatsApp entrega ao aparelho, para a equipe e a IA terem o contexto de quem já falava com o
+  escritório. As mensagens antigas entram só como histórico: não disparam a IA, o follow-up, a
+  análise de sentimento nem a distribuição entre atendentes, e não contam como não lidas. Mídia
+  (áudio, imagem, documento) não é baixada; a conversa mostra um aviso no lugar. O andamento
+  aparece no card do número, em Conexões.
+
+  Só vale para números pareados a partir desta versão: o WhatsApp só entrega o histórico no
+  momento do pareamento. Um número já conectado antes mostra um aviso no card; para trazer as
+  conversas antigas, desconecte-o e conecte de novo. O WAHA passa a guardar um armazenamento
+  local por sessão, que cresce no volume `waha-data` da VPS.
+
 ## [1.20.0] — 2026-10-23
 
 ### Adicionado
@@ -3361,7 +3377,8 @@ Primeira versão marcada do DeskcommCRM. O projeto vinha sendo desenvolvido publ
 
 - **Node 22 é obrigatório para desenvolvimento.** A suíte de invariantes instancia o cliente do Supabase, que exige o `WebSocket` global — nativo apenas a partir do Node 22. Isso não afeta quem apenas hospeda: a VPS roda a imagem pronta.
 
-[Não lançado]: https://github.com/Sciuba/CRMPI/compare/v1.20.0...HEAD
+[Não lançado]: https://github.com/Sciuba/CRMPI/compare/v1.21.0...HEAD
+[1.21.0]: https://github.com/Sciuba/CRMPI/compare/v1.20.0...v1.21.0
 [1.20.0]: https://github.com/Sciuba/CRMPI/compare/v1.19.4...v1.20.0
 [1.19.4]: https://github.com/Sciuba/CRMPI/compare/v1.19.3...v1.19.4
 [1.19.3]: https://github.com/Sciuba/CRMPI/compare/v1.19.2...v1.19.3
