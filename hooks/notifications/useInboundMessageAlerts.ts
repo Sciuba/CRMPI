@@ -95,6 +95,7 @@ export function useInboundMessageAlerts(): void {
         openConversationId: getOpenConversationId(),
         tabFocused: tabFocused(),
         tipo: (payload as { tipo?: unknown }).tipo,
+        historica: row.is_historical === true,
       })
     ) {
       return;
