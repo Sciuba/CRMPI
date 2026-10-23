@@ -9,6 +9,7 @@ import { format, isToday, isYesterday } from "date-fns";
 import { Button } from "@/components/ui/button";
 import { Skeleton } from "@/components/ui/skeleton";
 import { MessageBubble } from "./MessageBubble";
+import { autorDaMensagem } from "./autor-da-mensagem";
 import { NoteCard } from "./NoteCard";
 import { useMessagesRealtime } from "@/hooks/inbox/useMessagesRealtime";
 import { useConversationNotes } from "@/hooks/inbox/useConversationNotes";
@@ -223,7 +224,7 @@ export function ChatThread({ conversationId, onResponder }: Props) {
                 {dayLabel(g.date, t, localeDaData)}
               </span>
             </div>
-            {g.items.map((item) =>
+            {g.items.map((item, i) =>
               item.kind === "note" ? (
                 <NoteCard
                   key={`note-${item.data.id}`}
@@ -240,6 +241,13 @@ export function ChatThread({ conversationId, onResponder }: Props) {
                 <MessageBubble
                   key={`msg-${item.data.id}`}
                   message={item.data}
+                  autor={autorDaMensagem(
+                    item.data,
+                    // Só a mensagem imediatamente anterior do mesmo dia conta: uma nota
+                    // interna ou a virada do dia interrompem a rajada, e o nome volta.
+                    g.items[i - 1]?.kind === "message" ? (g.items[i - 1]!.data as Message) : null,
+                    currentUser,
+                  )}
                   debugCitations={debugCitations}
                   onResponder={onResponder}
                   // A citada sai da MESMA lista já carregada: buscar no servidor

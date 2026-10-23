@@ -89,6 +89,7 @@ export async function GET(
       error_message,
       ack,
       sent_by_user_id,
+      sent_by_user_name,
       created_at
     `)
     .eq("conversation_id", id)

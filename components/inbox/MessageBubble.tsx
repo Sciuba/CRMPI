@@ -17,6 +17,8 @@ import {
 
 interface Props {
   message: Message;
+  /** Nome de quem escreveu, quando vale dizê-lo (muda de autor). Ver `autor-da-mensagem.ts`. */
+  autor?: string | null;
   debugCitations?: boolean;
   /** Escolher esta mensagem para responder "em cima" dela. */
   onResponder?: (m: Message) => void;
@@ -37,7 +39,7 @@ function AckIndicator({ status, t }: { status: string; t: (texto: string) => str
   return null;
 }
 
-export function MessageBubble({ message, debugCitations, onResponder, citada }: Props) {
+export function MessageBubble({ message, debugCitations, onResponder, citada, autor }: Props) {
   const localeDaData = useLocaleDeData();
   const t = useT();
   const isOutbound = message.direction === "outbound";
@@ -160,6 +162,14 @@ export function MessageBubble({ message, debugCitations, onResponder, citada }: 
               <Robot size={10} weight="duotone" aria-hidden />
             ) : null}
             {senderLabel && t(senderLabel)}
+          </div>
+        )}
+        {autor && (
+          <div
+            data-testid="autor-da-mensagem"
+            className="mb-0.5 max-w-full truncate text-[11px] font-semibold opacity-80"
+          >
+            {autor}
           </div>
         )}
 

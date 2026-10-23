@@ -73,6 +73,12 @@ export interface Message {
   media_storage_path: string | null;
   sent_via: "user" | "ai" | "system";
   sent_by_user_id: string | null;
+  /**
+   * Cópia do nome de quem enviou (migration 0234), gravada no INSERT. `null` para
+   * IA, sistema e cliente — e para quem não tem nome cadastrado. Opcional porque a
+   * resposta pode vir de antes do campo existir.
+   */
+  sent_by_user_name?: string | null;
   sent_at: string;
   delivered_at: string | null;
   read_at: string | null;
