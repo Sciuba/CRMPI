@@ -24,8 +24,10 @@ import { traduzir } from "@/lib/i18n/dicionario";
 
 export const dynamic = "force-dynamic";
 
+// `historico` é só o andamento da importação do histórico (`metadata->historico`):
+// o `metadata` inteiro da sessão tem configuração interna que o navegador não precisa ver.
 export const CHANNEL_COLUMNS =
-  "id, waha_session_name, display_name, phone_number, status, status_reason, last_health_check_at, last_status_change_at, daily_message_limit, is_warmup_complete, created_at";
+  "id, waha_session_name, display_name, phone_number, status, status_reason, last_health_check_at, last_status_change_at, daily_message_limit, is_warmup_complete, created_at, historico:metadata->historico";
 
 export async function GET(): Promise<Response> {
   const requestId = randomUUID();

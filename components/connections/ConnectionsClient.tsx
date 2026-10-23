@@ -3,6 +3,7 @@
 import { useTagDeIdioma } from "@/hooks/i18n/useLocaleDeData";
 import { useCallback, useEffect, useRef, useState } from "react";
 import { useQuery, useQueryClient } from "@tanstack/react-query";
+import { textoDoHistorico } from "@/components/connections/historico-do-canal";
 import Link from "next/link";
 import type { ChannelRoutingSettings } from "@/lib/routing/channel-policies";
 import { toast } from "sonner";
@@ -333,6 +334,7 @@ export function ConnectionsClient({ wahaConfigured }: { wahaConfigured: boolean 
             // podendo ser excluído.
             const vivaNoTransporte = dependeDoTransporte(c);
             const podeExcluir = wahaConfigured || !vivaNoTransporte;
+            const historico = textoDoHistorico(c.historico, t);
             return (
               <Card key={c.id} className="flex flex-col gap-3 p-4">
                 <div className="flex items-start justify-between gap-2">
@@ -354,6 +356,14 @@ export function ConnectionsClient({ wahaConfigured }: { wahaConfigured: boolean 
                     ? `${t("Verificado")} ${new Date(c.last_health_check_at).toLocaleString(tagDoIdioma)}`
                     : t("Ainda não verificado")}
                 </p>
+                {historico && (
+                  <p
+                    data-testid="historico-do-canal"
+                    className={historico.tom === "aviso" ? "text-xs text-amber-600" : "text-xs text-muted-foreground"}
+                  >
+                    {historico.texto}
+                  </p>
+                )}
                 <ChannelAiAccess channelId={c.id} />
                 <p className="text-xs text-muted-foreground">{t(!policy ? "Consulte os responsáveis em Atendimento." : policy.mode === "legacy_unconfigured" ? "Usa todos os atendentes elegíveis da organização." : policy.mode === "restricted_empty" ? "Ninguém configurado — as conversas ficarão na fila." : "Somente as pessoas selecionadas recebem este número.")}</p>
                 <div className="mt-auto flex flex-wrap gap-2">

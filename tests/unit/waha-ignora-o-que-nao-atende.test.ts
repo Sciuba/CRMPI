@@ -1,6 +1,6 @@
 import { afterEach, beforeEach, describe, expect, it, vi } from "vitest";
 
-import { CONVERSAS_IGNORADAS, WahaClient } from "@/lib/waha/client";
+import { CONVERSAS_IGNORADAS, HISTORICO_DO_APARELHO, WahaClient } from "@/lib/waha/client";
 
 /**
  * O CRM PAGAVA POR CONVERSA QUE ELE MESMO DESCARTA.
@@ -58,6 +58,14 @@ describe("a sessão nasce ignorando o que o CRM não atende", () => {
     });
   });
 
+  it("a criação liga o store do histórico — sem ele o passado do aparelho se perde no pareamento", async () => {
+    espionar({});
+    await new WahaClient("http://w", "k").startSession("s1");
+    const criacao = chamadas.find((c) => c.url.endsWith("/api/sessions") && c.metodo === "POST");
+    const noweb = (criacao?.corpo as { config?: { noweb?: { store?: unknown } } })?.config?.noweb;
+    expect(noweb?.store).toEqual({ enabled: true, fullSync: true });
+  });
+
   it("os estados são a categoria que mais pesava — não podem sair da lista", () => {
     // 271 MB de 395 MB, sozinhos. Se alguém "aliviar" o filtro, é por aqui que
     // o banco volta a crescer 23 MB/dia.
@@ -103,9 +111,33 @@ describe("sessão que JÁ existe é corrigida — sem levar a config junto", () 
   it("não reescreve quando já está como queremos", async () => {
     // Este caminho roda em TODA reconexão, e o PUT REINICIA a sessão. Um
     // restart por rodada seria pior que o gasto que ele evita.
-    const vistos = comSessao({ webhooks: WEBHOOKS, ignore: { ...CONVERSAS_IGNORADAS } });
+    const vistos = comSessao({
+      webhooks: WEBHOOKS,
+      ignore: { ...CONVERSAS_IGNORADAS },
+      noweb: { store: { ...HISTORICO_DO_APARELHO } },
+    });
     await new WahaClient("http://w", "k").startSession("s1");
     expect(vistos.some((v) => v.metodo === "PUT"), "reiniciou a sessão à toa").toBe(false);
+  });
+
+  it("sessão sem o store do histórico é convergida, preservando webhooks e o resto do noweb", async () => {
+    // O aparelho só entrega o histórico no pareamento, e só para quem guarda o
+    // store. Sessão que nasceu antes desta regra precisa ganhá-lo — sem perder
+    // webhook (canal mudo) nem outra chave do `noweb` que o operador tenha posto.
+    const vistos = comSessao({
+      webhooks: WEBHOOKS,
+      ignore: { ...CONVERSAS_IGNORADAS },
+      noweb: { markOnline: false, store: { enabled: false } },
+    });
+    await new WahaClient("http://w", "k").startSession("s1");
+    const put = vistos.find((v) => v.metodo === "PUT");
+    expect(put, "não corrigiu a sessão sem store").toBeDefined();
+    const cfg = (put?.corpo as { config?: Record<string, unknown> })?.config as {
+      webhooks?: unknown; noweb?: { markOnline?: boolean; store?: unknown };
+    };
+    expect(cfg.webhooks, "o PUT apagou os webhooks").toEqual(WEBHOOKS);
+    expect(cfg.noweb?.markOnline, "o PUT apagou outra chave do noweb").toBe(false);
+    expect(cfg.noweb?.store).toEqual(HISTORICO_DO_APARELHO);
   });
 
   it("se não conseguir LER a config, não escreve nada", async () => {

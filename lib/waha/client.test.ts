@@ -291,7 +291,10 @@ describe("sessões: conflito conhecido só converge com identidade e pós-condi�
   type Step = { method: string; path: string; status: number; body?: unknown };
   const name = "qa/session";
   const sessionPath = "/api/sessions/qa%2Fsession";
-  const config = { ignore: { status: true, broadcast: true, channels: true, groups: true } };
+  const config = {
+    ignore: { status: true, broadcast: true, channels: true, groups: true },
+    noweb: { store: { enabled: true, fullSync: true } },
+  };
   const session = (status = "STOPPED", extra: Record<string, unknown> = {}) =>
     ({ name, status, config, engine: { engine: "NOWEB" }, ...extra });
   const duplicate = { statusCode: 422, error: "Unprocessable Entity", message: `Session '${name}' already exists. Use PUT to update it.` };
