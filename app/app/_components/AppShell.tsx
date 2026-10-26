@@ -3,6 +3,7 @@ import type { ReactNode } from "react";
 import { Sidebar } from "@/components/shell/Sidebar";
 import { TopBar } from "@/components/shell/TopBar";
 import { useInboundMessageAlerts } from "@/hooks/notifications/useInboundMessageAlerts";
+import { useCentralAlerts } from "@/hooks/notifications/useCentralAlerts";
 import { useCrmAlerts } from "@/hooks/notifications/useCrmAlerts";
 import { useNotifyOpenFromServiceWorker } from "@/lib/notifications/notify_open";
 
@@ -14,6 +15,7 @@ interface AppShellProps {
 export function AppShell({ sidebarCollapsed, children }: AppShellProps) {
   useInboundMessageAlerts();
   useCrmAlerts();
+  useCentralAlerts();
   useNotifyOpenFromServiceWorker();
   return (
     <div className="flex min-h-screen w-full bg-background">
