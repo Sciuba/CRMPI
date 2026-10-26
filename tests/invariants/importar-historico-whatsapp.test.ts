@@ -1,3 +1,6 @@
+import { readFileSync } from "node:fs";
+import { resolve } from "node:path";
+
 import { beforeAll, describe, expect, it } from "vitest";
 
 import { GOV_ORG, GOV_SESSION, seedGov, sql } from "./gov-helpers";
@@ -128,5 +131,35 @@ describe("0235 — importar histórico do WhatsApp", () => {
              has_function_privilege('service_role', '${f}', 'execute');
     `);
     expect(privilegios).toBe("f|f|f|t");
+  });
+});
+
+describe("0236 — o recálculo de não lidas ignora o histórico", () => {
+  const CONTATO_RECALCULO = "dddddddd-3333-4000-8000-000000000003";
+  const migration = readFileSync(
+    resolve(__dirname, "../../supabase/migrations/20261026130000_0236_historico_nao_conta_como_nao_lida.sql"),
+    "utf8",
+  );
+
+  it("zera a conversa só de histórico e preserva a que tem mensagem ao vivo", () => {
+    sql(`insert into public.contacts (id, organization_id, display_name)
+           values ('${CONTATO_RECALCULO}', '${GOV_ORG}', 'Recalculo Invariant') on conflict do nothing;`);
+    importar(
+      CONTATO_RECALCULO,
+      JSON.stringify([
+        { external_id: "rec-hist-1", direction: "inbound", type: "text", body: "oi", sent_at: "2026-08-02T10:00:00Z" },
+      ]),
+    );
+    // Simula o backfill antigo do baseline, que contava o histórico como não lido.
+    sql(`update public.conversations set unread_count_for_assignee = 1 where contact_id = '${CONTATO_RECALCULO}';`);
+    sql(migration);
+    expect(sql(`select unread_count_for_assignee from public.conversations where contact_id = '${CONTATO_RECALCULO}';`)).toBe("0");
+
+    sql(`insert into public.messages (organization_id, conversation_id, channel_session_id, contact_id, external_id, type, direction, status, body, sent_via, sent_at)
+           select '${GOV_ORG}', c.id, '${GOV_SESSION}', '${CONTATO_RECALCULO}', 'rec-vivo-1', 'text', 'inbound', 'delivered', 'ao vivo', 'external_device', now()
+             from public.conversations c where c.contact_id = '${CONTATO_RECALCULO}';`);
+    sql(`update public.conversations set unread_count_for_assignee = 0 where contact_id = '${CONTATO_RECALCULO}';`);
+    sql(migration);
+    expect(sql(`select unread_count_for_assignee from public.conversations where contact_id = '${CONTATO_RECALCULO}';`)).toBe("1");
   });
 });
