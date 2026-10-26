@@ -23481,6 +23481,23 @@ $$;
 revoke execute on function public.fn_importar_historico_whatsapp(uuid, uuid, uuid, jsonb) from public, anon, authenticated;
 grant execute on function public.fn_importar_historico_whatsapp(uuid, uuid, uuid, jsonb) to service_role;
 
+-- ---- avisos da Central em tempo real (migration 0237) ----
+-- 0237 — os avisos da Central chegam ao navegador em tempo real.
+--
+-- `agent_inbox_items` é onde o CRM pede atenção do operador (número aguardando
+-- liberação, QR a reescanear, mensagem presa). Para o navegador transformar um
+-- aviso novo em notificação do sistema, a tabela precisa estar na publicação do
+-- realtime. A RLS por organização (tenant_isolation) continua filtrando quem recebe.
+do $$
+begin
+  if not exists (
+    select 1 from pg_publication_tables
+     where pubname = 'supabase_realtime' and schemaname = 'public' and tablename = 'agent_inbox_items'
+  ) then
+    alter publication supabase_realtime add table public.agent_inbox_items;
+  end if;
+end $$;
+
 -- ---- VARREDURA anon: função nova nasce exposta em quem ATUALIZA (migration 0116) ----
 --
 -- ⚠️ ESTE BLOCO É, DE PROPÓSITO, O ÚLTIMO DO ARQUIVO. Apêndice novo entra ANTES
