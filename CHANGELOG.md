@@ -8,6 +8,14 @@ Se você roda o DeskcommCRM numa VPS, **leia a seção da versão para a qual es
 
 ## [Não lançado]
 
+## [1.22.1] — 2026-10-26
+
+### Corrigido
+
+- **A Zona de perigo volta a apagar os dados de atendimento quando há rascunhos da IA** Em Configurações › Organização, apagar os dados de atendimento falhava logo no primeiro passo
+  quando a organização tinha algum rascunho de resposta da IA já enviado: o rascunho apontava para a
+  mensagem e impedia que ela fosse apagada. Os rascunhos agora saem antes das mensagens.
+
 ## [1.22.0] — 2026-10-26
 
 ### Adicionado
@@ -3403,7 +3411,8 @@ Primeira versão marcada do DeskcommCRM. O projeto vinha sendo desenvolvido publ
 
 - **Node 22 é obrigatório para desenvolvimento.** A suíte de invariantes instancia o cliente do Supabase, que exige o `WebSocket` global — nativo apenas a partir do Node 22. Isso não afeta quem apenas hospeda: a VPS roda a imagem pronta.
 
-[Não lançado]: https://github.com/Sciuba/CRMPI/compare/v1.22.0...HEAD
+[Não lançado]: https://github.com/Sciuba/CRMPI/compare/v1.22.1...HEAD
+[1.22.1]: https://github.com/Sciuba/CRMPI/compare/v1.22.0...v1.22.1
 [1.22.0]: https://github.com/Sciuba/CRMPI/compare/v1.21.1...v1.22.0
 [1.21.1]: https://github.com/Sciuba/CRMPI/compare/v1.21.0...v1.21.1
 [1.21.0]: https://github.com/Sciuba/CRMPI/compare/v1.20.0...v1.21.0
