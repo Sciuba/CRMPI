@@ -13,6 +13,11 @@ import type { SupabaseClient } from "@supabase/supabase-js";
  * (cabeçalho da 0167) descreve como porta de adulteração.
  *
  * ── Por que a ORDEM é código e não estilo ────────────────────────────────────
+ * `ai_reply_drafts.message_id` aponta para `messages` SEM cascata (NO ACTION):
+ * apagar `messages` com um rascunho já enviado devolve 23503 e o reset morre no
+ * primeiro passo. Os rascunhos saem antes. Eles sumiriam de qualquer forma por
+ * CASCADE de `conversations` e `contacts`, então não é dado a mais que vai embora.
+ *
  * Três FKs para `contacts` são ON DELETE RESTRICT (medido no baseline aplicado:
  * `messages.contact_id`, `conversations.contact_id`,
  * `calendar_appointments.contact_id`). Apagar `contacts` antes deles devolve
@@ -42,6 +47,7 @@ interface Raiz {
 }
 
 export type TabelaOperacional =
+  | "ai_reply_drafts"
   | "messages"
   | "conversations"
   | "calendar_appointments"
@@ -54,6 +60,7 @@ export type TabelaOperacional =
  * `contacts` precisa sair antes dele.
  */
 export const RAIZES_DO_APAGAMENTO: readonly Raiz[] = [
+  { tabela: "ai_reply_drafts", porque: "FK sem cascata para messages (message_id)" },
   { tabela: "messages", porque: "FK RESTRICT para contacts" },
   { tabela: "conversations", porque: "FK RESTRICT para contacts" },
   { tabela: "calendar_appointments", porque: "FK RESTRICT para contacts" },
@@ -75,6 +82,7 @@ export type ResultadoDoApagamento =
 
 function contagensZeradas(): ContagensApagadas {
   return {
+    ai_reply_drafts: 0,
     messages: 0,
     conversations: 0,
     calendar_appointments: 0,

@@ -150,9 +150,10 @@ describe("zona de perigo: o apagamento não sai da própria organização", () =
     }
   });
 
-  it("apaga exatamente as seis raízes declaradas — nem tabela a mais, nem a menos", async () => {
+  it("apaga exatamente as sete raízes declaradas — nem tabela a mais, nem a menos", async () => {
     await apagarDadosOperacionaisDaOrganizacao({ confirmNome: NOME_DA_ORG });
     expect(delecoes.map((d) => d.tabela)).toEqual([
+      "ai_reply_drafts",
       "messages",
       "conversations",
       "calendar_appointments",
@@ -160,6 +161,13 @@ describe("zona de perigo: o apagamento não sai da própria organização", () =
       "crm_leads",
       "contacts",
     ]);
+  });
+
+  it("os rascunhos da IA saem antes das mensagens (message_id é FK sem cascata)", async () => {
+    await apagarDadosOperacionaisDaOrganizacao({ confirmNome: NOME_DA_ORG });
+    const ordem = delecoes.map((d) => d.tabela);
+    expect(ordem.indexOf("ai_reply_drafts")).toBeGreaterThan(-1);
+    expect(ordem.indexOf("ai_reply_drafts")).toBeLessThan(ordem.indexOf("messages"));
   });
 
   it("contacts sai por último: as três FKs RESTRICT vêm antes dele", async () => {
