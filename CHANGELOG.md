@@ -8,6 +8,22 @@ Se você roda o DeskcommCRM numa VPS, **leia a seção da versão para a qual es
 
 ## [Não lançado]
 
+## [1.22.0] — 2026-10-26
+
+### Adicionado
+
+- **Avisos da Central aparecem como notificação do sistema** Os avisos da Central (número aguardando liberação, QR a reescanear, mensagem presa e afins) agora
+  chegam como notificação do sistema, igual ao aviso de nova mensagem: aparecem mesmo com o navegador
+  em segundo plano. Uma rajada de avisos vira uma notificação só. Dá para ligar ou desligar em
+  Configurações › Notificações, na linha "Avisos da Central".
+
+### Corrigido
+
+- **O histórico importado do WhatsApp não volta a aparecer como "não lido" a cada atualização** Toda atualização da instalação recalcula o contador de não lidas de cada conversa, e esse cálculo
+  não distinguia o histórico importado no pareamento das mensagens novas. Resultado: conversas antigas,
+  que ninguém espera resposta, voltavam a aparecer como não lidas depois de um update. O cálculo agora
+  ignora o histórico; só mensagem recebida depois do pareamento conta como não lida.
+
 ## [1.21.1] — 2026-10-26
 
 ### Corrigido
@@ -3387,7 +3403,8 @@ Primeira versão marcada do DeskcommCRM. O projeto vinha sendo desenvolvido publ
 
 - **Node 22 é obrigatório para desenvolvimento.** A suíte de invariantes instancia o cliente do Supabase, que exige o `WebSocket` global — nativo apenas a partir do Node 22. Isso não afeta quem apenas hospeda: a VPS roda a imagem pronta.
 
-[Não lançado]: https://github.com/Sciuba/CRMPI/compare/v1.21.1...HEAD
+[Não lançado]: https://github.com/Sciuba/CRMPI/compare/v1.22.0...HEAD
+[1.22.0]: https://github.com/Sciuba/CRMPI/compare/v1.21.1...v1.22.0
 [1.21.1]: https://github.com/Sciuba/CRMPI/compare/v1.21.0...v1.21.1
 [1.21.0]: https://github.com/Sciuba/CRMPI/compare/v1.20.0...v1.21.0
 [1.20.0]: https://github.com/Sciuba/CRMPI/compare/v1.19.4...v1.20.0
