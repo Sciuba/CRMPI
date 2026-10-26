@@ -8,6 +8,16 @@ Se você roda o DeskcommCRM numa VPS, **leia a seção da versão para a qual es
 
 ## [Não lançado]
 
+## [1.21.1] — 2026-10-26
+
+### Corrigido
+
+- **O histórico importado do WhatsApp não gera mais alertas nem trava o Inbox** Ao parear um número, cada mensagem do histórico importado disparava o aviso "Nova mensagem" no
+  navegador, e cada conversa criada fazia o Inbox recarregar a lista inteira. A rajada empilhava as
+  recargas, estourava o tempo da tela e mostrava uma chuva de "Erro inesperado". Agora o histórico é
+  silencioso: não gera alertas, e uma sequência de mudanças vira uma recarga só (a primeira continua
+  imediata). Só mensagens novas, depois do pareamento, avisam.
+
 ## [1.21.0] — 2026-10-23
 
 ### Adicionado
@@ -3377,7 +3387,8 @@ Primeira versão marcada do DeskcommCRM. O projeto vinha sendo desenvolvido publ
 
 - **Node 22 é obrigatório para desenvolvimento.** A suíte de invariantes instancia o cliente do Supabase, que exige o `WebSocket` global — nativo apenas a partir do Node 22. Isso não afeta quem apenas hospeda: a VPS roda a imagem pronta.
 
-[Não lançado]: https://github.com/Sciuba/CRMPI/compare/v1.21.0...HEAD
+[Não lançado]: https://github.com/Sciuba/CRMPI/compare/v1.21.1...HEAD
+[1.21.1]: https://github.com/Sciuba/CRMPI/compare/v1.21.0...v1.21.1
 [1.21.0]: https://github.com/Sciuba/CRMPI/compare/v1.20.0...v1.21.0
 [1.20.0]: https://github.com/Sciuba/CRMPI/compare/v1.19.4...v1.20.0
 [1.19.4]: https://github.com/Sciuba/CRMPI/compare/v1.19.3...v1.19.4
