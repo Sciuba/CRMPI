@@ -3,7 +3,7 @@
 import { useTagDeIdioma } from "@/hooks/i18n/useLocaleDeData";
 import { useCallback, useEffect, useRef, useState } from "react";
 import { useQuery, useQueryClient } from "@tanstack/react-query";
-import { textoDoHistorico } from "@/components/connections/historico-do-canal";
+import { historicoEmAndamento, textoDoHistorico } from "@/components/connections/historico-do-canal";
 import Link from "next/link";
 import type { ChannelRoutingSettings } from "@/lib/routing/channel-policies";
 import { toast } from "sonner";
@@ -359,8 +359,18 @@ export function ConnectionsClient({ wahaConfigured }: { wahaConfigured: boolean 
                 {historico && (
                   <p
                     data-testid="historico-do-canal"
-                    className={historico.tom === "aviso" ? "text-xs text-amber-600" : "text-xs text-muted-foreground"}
+                    data-andamento={historicoEmAndamento(c.historico) ? "true" : undefined}
+                    role="status"
+                    aria-live="polite"
+                    className={
+                      historico.tom === "aviso"
+                        ? "text-xs text-amber-600"
+                        : historicoEmAndamento(c.historico)
+                          ? "flex items-center gap-2 rounded-md border bg-muted/50 px-3 py-2 text-sm font-medium"
+                          : "text-xs text-muted-foreground"
+                    }
                   >
+                    {historicoEmAndamento(c.historico) && <CircleNotch size={14} className="shrink-0 animate-spin" aria-hidden />}
                     {historico.texto}
                   </p>
                 )}

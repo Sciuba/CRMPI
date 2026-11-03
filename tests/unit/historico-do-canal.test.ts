@@ -1,6 +1,6 @@
 import { describe, expect, it } from "vitest";
 
-import { textoDoHistorico } from "@/components/connections/historico-do-canal";
+import { historicoEmAndamento, textoDoHistorico } from "@/components/connections/historico-do-canal";
 import type { HistoricoDaSessao } from "@/lib/channels/historico";
 
 const t = (s: string) => s;
@@ -14,7 +14,7 @@ describe("o que o card do número diz sobre o histórico", () => {
 
   it("acompanha o andamento com a contagem", () => {
     const h: HistoricoDaSessao = { ...base, estado: "importando", mensagens_importadas: 420 };
-    expect(textoDoHistorico(h, t)).toEqual({ texto: "Importando o histórico das conversas… 420", tom: "neutro" });
+    expect(textoDoHistorico(h, t)).toEqual({ texto: "Importando o histórico das conversas… 420 mensagens", tom: "neutro" });
   });
 
   it("concluído diz quanto entrou; sem nada, diz que não havia", () => {
@@ -31,5 +31,13 @@ describe("o que o card do número diz sobre o histórico", () => {
   it("outra falha avisa sem prometer remédio", () => {
     const r = textoDoHistorico({ ...base, estado: "indisponivel", motivo: "falhou_apos_tentativas" }, t);
     expect(r).toEqual({ texto: "Não foi possível importar o histórico das conversas.", tom: "aviso" });
+  });
+
+  it("só aguardando e importando contam como em andamento", () => {
+    expect(historicoEmAndamento({ ...base, estado: "aguardando" })).toBe(true);
+    expect(historicoEmAndamento({ ...base, estado: "importando" })).toBe(true);
+    expect(historicoEmAndamento({ ...base, estado: "concluido" })).toBe(false);
+    expect(historicoEmAndamento({ ...base, estado: "indisponivel" })).toBe(false);
+    expect(historicoEmAndamento(null)).toBe(false);
   });
 });
