@@ -17,7 +17,10 @@ export function textoDoHistorico(
     case "aguardando":
       return { texto: t("Aguardando o WhatsApp entregar o histórico das conversas…"), tom: "neutro" };
     case "importando":
-      return { texto: `${t("Importando o histórico das conversas…")} ${n}`, tom: "neutro" };
+      return {
+        texto: n > 0 ? `${t("Importando o histórico das conversas…")} ${n} ${t("mensagens")}` : t("Importando o histórico das conversas…"),
+        tom: "neutro",
+      };
     case "concluido":
       return {
         texto: n > 0 ? `${t("Histórico importado:")} ${n} ${t("mensagens")}` : t("Nenhuma conversa antiga para importar."),
@@ -34,4 +37,13 @@ export function textoDoHistorico(
     default:
       return null;
   }
+}
+
+/**
+ * A importação ainda está rodando? Quem acabou de ler o QR olha para o card
+ * esperando saber se está travado — por isso o andamento ganha destaque (giro +
+ * leitura por voz) e o resto continua discreto.
+ */
+export function historicoEmAndamento(h: HistoricoDaSessao | null | undefined): boolean {
+  return h?.estado === "aguardando" || h?.estado === "importando";
 }
