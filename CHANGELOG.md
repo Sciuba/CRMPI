@@ -8,6 +8,22 @@ Se você roda o DeskcommCRM numa VPS, **leia a seção da versão para a qual es
 
 ## [Não lançado]
 
+## [1.22.2] — 2026-11-03
+
+### Alterado
+
+- **O andamento da importação do histórico ganha destaque no card de Conexões** Logo depois de ler o QR, a importação do histórico do WhatsApp aparecia numa
+  linha pequena e cinza, igual ao "Verificado em…", e parecia travada. Enquanto
+  importa, o card agora mostra uma faixa com indicador girando e a contagem de
+  mensagens ("Importando o histórico das conversas… 420 mensagens"), anunciada
+  por leitores de tela. Ao concluir, volta à linha discreta.
+
+### Corrigido
+
+- **O teste de ponta a ponta do CI usa uma versão fixa do CLI do Supabase** O CI baixava sempre a última versão do CLI do Supabase, e a v3.0.0 deixou de
+  aceitar a configuração local do repositório, derrubando todos os testes e2e.
+  Agora a versão é fixa em 2.122.0. Não muda nada em quem opera uma VPS.
+
 ## [1.22.1] — 2026-10-26
 
 ### Corrigido
@@ -3411,7 +3427,8 @@ Primeira versão marcada do DeskcommCRM. O projeto vinha sendo desenvolvido publ
 
 - **Node 22 é obrigatório para desenvolvimento.** A suíte de invariantes instancia o cliente do Supabase, que exige o `WebSocket` global — nativo apenas a partir do Node 22. Isso não afeta quem apenas hospeda: a VPS roda a imagem pronta.
 
-[Não lançado]: https://github.com/Sciuba/CRMPI/compare/v1.22.1...HEAD
+[Não lançado]: https://github.com/Sciuba/CRMPI/compare/v1.22.2...HEAD
+[1.22.2]: https://github.com/Sciuba/CRMPI/compare/v1.22.1...v1.22.2
 [1.22.1]: https://github.com/Sciuba/CRMPI/compare/v1.22.0...v1.22.1
 [1.22.0]: https://github.com/Sciuba/CRMPI/compare/v1.21.1...v1.22.0
 [1.21.1]: https://github.com/Sciuba/CRMPI/compare/v1.21.0...v1.21.1
