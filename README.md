@@ -11,7 +11,7 @@
 [![TypeScript](https://img.shields.io/badge/TypeScript-strict-3178c6?logo=typescript)](https://www.typescriptlang.org)
 [![Supabase](https://img.shields.io/badge/Supabase-Postgres%2BAuth%2BStorage-3ecf8e?logo=supabase)](https://supabase.com)
 [![Self-hosted](https://img.shields.io/badge/self--hosted-1%20comando-orange)](setup-kit/)
-[![CI](https://github.com/Sciuba/CRMPI/actions/workflows/ci.yml/badge.svg)](https://github.com/Sciuba/CRMPI/actions/workflows/ci.yml)
+[![CI](https://github.com/itConesul/CRMPI/actions/workflows/ci.yml/badge.svg)](https://github.com/itConesul/CRMPI/actions/workflows/ci.yml)
 [![License: MIT](https://img.shields.io/badge/license-MIT-green)](LICENSE)
 
 [**⚡ Instalar**](#-instalar-na-sua-vps-o-caminho-principal) · [**🔄 Atualizar**](#-atualizar) · [**🧭 Visão**](VISION.md) · [**🏗️ Arquitetura**](ARCHITECTURE.md) · [**🤝 Contribuir**](CONTRIBUTING.md) · [**🗺️ Roadmap**](#%EF%B8%8F-roadmap)
@@ -30,7 +30,7 @@
 > comando certo pro seu caso:
 >
 > ```bash
-> git clone https://github.com/Sciuba/CRMPI.git deskcommcrm
+> git clone https://github.com/itConesul/CRMPI.git deskcommcrm
 > cd deskcommcrm
 > bash setup-kit/comecar.sh
 > ```
@@ -65,7 +65,7 @@ travamento: é o terminal escondendo a senha. Digite (ou cole) e dê Enter.
 Já dentro da VPS:
 
 ```bash
-git clone https://github.com/Sciuba/CRMPI.git deskcommcrm
+git clone https://github.com/itConesul/CRMPI.git deskcommcrm
 cd deskcommcrm
 bash setup-kit/install.sh
 ```
@@ -266,7 +266,7 @@ Detalhes: [`ARCHITECTURE.md`](ARCHITECTURE.md).
 > Esta seção é pra quem vai mexer no código.
 
 ```bash
-git clone https://github.com/Sciuba/CRMPI.git deskcommcrm
+git clone https://github.com/itConesul/CRMPI.git deskcommcrm
 cd deskcommcrm
 
 nvm use                     # Node 22
@@ -337,7 +337,7 @@ pnpm test:e2e      # Playwright (requer dev server)
 **Estes checks são obrigatórios** pra mergear na `main`. A lista abaixo já disse "quatro" e depois "cinco" — **meça, não confie nela**:
 
 ```bash
-gh api repos/Sciuba/CRMPI/branches/main/protection \
+gh api repos/itConesul/CRMPI/branches/main/protection \
   --jq '.required_status_checks.contexts|join(", ")'
 # em 2026-08-14: verify, build-and-size, invariants, e2e, imagens-ok
 ```
@@ -409,9 +409,9 @@ o `imagens-ok` (constrói as três imagens Docker). Verde na sua máquina não �
 
 ## 🐛 Reportando bugs
 
-Abra uma [issue](https://github.com/Sciuba/CRMPI/issues/new/choose) — o template pede o que precisamos (ambiente, `/api/v1/health`, steps). Rodar `bash setup-kit/healthcheck.sh` e colar a saída ajuda muito.
+Abra uma [issue](https://github.com/itConesul/CRMPI/issues/new/choose) — o template pede o que precisamos (ambiente, `/api/v1/health`, steps). Rodar `bash setup-kit/healthcheck.sh` e colar a saída ajuda muito.
 
-Pra **vulnerabilidades de segurança**, **NÃO abra issue pública** — use o [relato privado de vulnerabilidades](https://github.com/Sciuba/CRMPI/security/advisories/new). Detalhes em [`SECURITY.md`](SECURITY.md).
+Pra **vulnerabilidades de segurança**, **NÃO abra issue pública** — use o [relato privado de vulnerabilidades](https://github.com/itConesul/CRMPI/security/advisories/new). Detalhes em [`SECURITY.md`](SECURITY.md).
 
 ---
 
@@ -442,8 +442,8 @@ Pra **vulnerabilidades de segurança**, **NÃO abra issue pública** — use o [
 
 ## 💬 Comunidade
 
-- **Discussões:** [GitHub Discussions](https://github.com/Sciuba/CRMPI/discussions) — pra perguntas, ideias, showcase.
-- **Issues:** [GitHub Issues](https://github.com/Sciuba/CRMPI/issues) — bugs e tasks.
+- **Discussões:** [GitHub Discussions](https://github.com/itConesul/CRMPI/discussions) — pra perguntas, ideias, showcase.
+- **Issues:** [GitHub Issues](https://github.com/itConesul/CRMPI/issues) — bugs e tasks.
 
 ---
 
@@ -461,8 +461,8 @@ Este é um projeto **self-host**: cada pessoa roda o CRM na **própria infraestr
 (VPS, banco Supabase e chave de IA próprios). Isso implica:
 
 - **Suporte é comunitário e "as-is".** Dúvidas e bugs entram como
-  [Issues](https://github.com/Sciuba/CRMPI/issues) ou
-  [Discussions](https://github.com/Sciuba/CRMPI/discussions). Não há SLA nem
+  [Issues](https://github.com/itConesul/CRMPI/issues) ou
+  [Discussions](https://github.com/itConesul/CRMPI/discussions). Não há SLA nem
   suporte garantido — é open source mantido por boa vontade.
 - **Você é responsável pela sua instalação.** Atualizações não são automáticas (você clica
   ou roda `update.sh` quando quiser), e manter/backup do seu servidor é com você.

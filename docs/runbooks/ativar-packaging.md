@@ -31,11 +31,11 @@ procurada — o que faz qualquer checagem ingênua aprovar tudo.
 ```bash
 ghcr_status() {   # $1=imagem  $2=tag  → 200 existe | 404 não existe | 403 privado
   local t
-  t=$(curl -s "https://ghcr.io/token?scope=repository:sciuba/$1:pull&service=ghcr.io" \
+  t=$(curl -s "https://ghcr.io/token?scope=repository:itconesul/$1:pull&service=ghcr.io" \
       | sed -n 's/.*"token":"\([^"]*\)".*/\1/p')
   curl -s -o /dev/null -w '%{http_code}' -H "Authorization: Bearer $t" \
     -H 'Accept: application/vnd.oci.image.index.v1+json' \
-    "https://ghcr.io/v2/sciuba/$1/manifests/$2"
+    "https://ghcr.io/v2/itconesul/$1/manifests/$2"
 }
 ```
 
@@ -73,7 +73,7 @@ a operação inteira, a atualização de um cliente morre depois do `git checkou
 
 Para cada um de `deskcomm-worker` e `deskcomm-scheduler`:
 
-> github.com/users/Sciuba/packages/container/`<pacote>`/settings → Danger Zone →
+> github.com/users/itConesul/packages/container/`<pacote>`/settings → Danger Zone →
 > Change visibility → **Public**
 
 Enquanto estiver aqui, ligue também **Inherit access from repository**, para o pacote seguir a
@@ -95,7 +95,7 @@ bloqueia **todos** eles até que cada um faça rebase. Depois do merge, `imagens
 `main` e todo PR novo já nasce com ele.
 
 ```bash
-gh api -X PATCH repos/Sciuba/CRMPI/branches/main/protection/required_status_checks \
+gh api -X PATCH repos/itConesul/CRMPI/branches/main/protection/required_status_checks \
   -f 'checks[][context]=verify' \
   -f 'checks[][context]=build-and-size' \
   -f 'checks[][context]=invariants' \
@@ -111,7 +111,7 @@ gh api -X PATCH repos/Sciuba/CRMPI/branches/main/protection/required_status_chec
 **Verificação:**
 
 ```bash
-gh api repos/Sciuba/CRMPI/branches/main/protection \
+gh api repos/itConesul/CRMPI/branches/main/protection \
   --jq '.required_status_checks.contexts|join(", ")'
 # esperado: verify, build-and-size, invariants, e2e, imagens-ok
 ```
@@ -136,7 +136,7 @@ for i in deskcommcrm deskcomm-worker deskcomm-scheduler; do
 done
 # esperado: 200 em todos
 
-docker run --rm ghcr.io/sciuba/deskcommcrm:X.Y.Z \
+docker run --rm ghcr.io/itconesul/deskcommcrm:X.Y.Z \
   node -e 'console.log(process.env.APP_VERSION)'
 # esperado: X.Y.Z   (antes desta release, `undefined` — nenhuma imagem publicada a carrega)
 ```
@@ -171,3 +171,12 @@ Nada quebra, e isso é por construção:
 | Instalação nova | o `install.sh` sonda o registry, vê que o trio não está publicado, **avisa** e constrói worker/scheduler localmente (lento, funciona) |
 | Avaliação (`up -d` sem `.env`) | o app não sobe até o `stable` existir — o passo 4 resolve |
 | PR de contribuidor | `imagens-ok` roda e informa; não bloqueia até o passo 3 |
+
+## Transição de namespace (Sciuba → itConesul)
+
+O repositório mudou para a conta `itConesul` e o GHCR **não leva os pacotes**. Instalações antigas têm `ghcr.io/sciuba/*` no `.env`, então o job `espelhar-namespace-legado` de `publish-image.yml` copia cada imagem publicada também para esse namespace (mesmo digest).
+
+- Precisa do secret `GHCR_LEGADO_TOKEN`: PAT clássico da conta `Sciuba` com `write:packages`. Sem ele o job só emite aviso.
+- Na primeira publicação, torne **públicos** os três pacotes novos em `github.com/users/itConesul/packages/container/<pacote>/settings` — pacote novo nasce privado e o `docker compose pull` de toda VPS é negado (403).
+- Para conferir: `curl -s -o /dev/null -w '%{http_code}' ...` como em "Verificar" acima, contra os DOIS namespaces.
+- Quando nenhuma VPS referenciar mais `ghcr.io/sciuba`, apague o job e o secret.

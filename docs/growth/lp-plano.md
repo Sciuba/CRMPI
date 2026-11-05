@@ -339,7 +339,7 @@ Imagem: a mesma tela em duas marcas diferentes, lado a lado.
 Bloco de código real, copiável:
 
 ```bash
-git clone https://github.com/Sciuba/CRMPI.git
+git clone https://github.com/itConesul/CRMPI.git
 cd DeskcommCRM/setup-kit
 bash install.sh
 ```

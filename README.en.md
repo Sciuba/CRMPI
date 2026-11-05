@@ -11,7 +11,7 @@
 [![TypeScript](https://img.shields.io/badge/TypeScript-strict-3178c6?logo=typescript)](https://www.typescriptlang.org)
 [![Supabase](https://img.shields.io/badge/Supabase-Postgres%2BAuth%2BStorage-3ecf8e?logo=supabase)](https://supabase.com)
 [![Self-hosted](https://img.shields.io/badge/self--hosted-one%20command-orange)](setup-kit/)
-[![CI](https://github.com/Sciuba/CRMPI/actions/workflows/ci.yml/badge.svg)](https://github.com/Sciuba/CRMPI/actions/workflows/ci.yml)
+[![CI](https://github.com/itConesul/CRMPI/actions/workflows/ci.yml/badge.svg)](https://github.com/itConesul/CRMPI/actions/workflows/ci.yml)
 [![License: MIT](https://img.shields.io/badge/license-MIT-green)](LICENSE)
 
 [**⚡ Install**](#-install-on-your-vps-the-main-path) · [**🔄 Update**](#-updating) · [**🧭 Vision**](VISION.md) · [**🏗️ Architecture**](ARCHITECTURE.md) · [**🤝 Contributing**](CONTRIBUTING.md) · [**🗺️ Roadmap**](#%EF%B8%8F-roadmap)
@@ -30,7 +30,7 @@
 > command for your case:
 >
 > ```bash
-> git clone https://github.com/Sciuba/CRMPI.git deskcommcrm
+> git clone https://github.com/itConesul/CRMPI.git deskcommcrm
 > cd deskcommcrm
 > bash setup-kit/comecar.sh
 > ```
@@ -65,7 +65,7 @@ That is not a freeze: the terminal is hiding your password. Type (or paste) it a
 Once inside the VPS:
 
 ```bash
-git clone https://github.com/Sciuba/CRMPI.git deskcommcrm
+git clone https://github.com/itConesul/CRMPI.git deskcommcrm
 cd deskcommcrm
 bash setup-kit/install.sh
 ```
@@ -267,7 +267,7 @@ Details: [`ARCHITECTURE.md`](ARCHITECTURE.md).
 > This section is for people who will change the code.
 
 ```bash
-git clone https://github.com/Sciuba/CRMPI.git deskcommcrm
+git clone https://github.com/itConesul/CRMPI.git deskcommcrm
 cd deskcommcrm
 
 nvm use                     # Node 22
@@ -306,7 +306,7 @@ pnpm test:e2e      # Playwright (requires dev server)
 **These checks are required** to merge into `main`. This list has already said "four" and then "five" — **measure, don't trust it**:
 
 ```bash
-gh api repos/Sciuba/CRMPI/branches/main/protection \
+gh api repos/itConesul/CRMPI/branches/main/protection \
   --jq '.required_status_checks.contexts|join(", ")'
 # on 2026-08-14: verify, build-and-size, invariants, e2e, imagens-ok
 ```
@@ -372,9 +372,9 @@ Two required gates do **not** fit there and only run in CI: `e2e` (needs a local
 
 ## 🐛 Reporting bugs
 
-Open an [issue](https://github.com/Sciuba/CRMPI/issues/new/choose) — the template asks for what we need (environment, `/api/v1/health`, steps). Running `bash setup-kit/healthcheck.sh` and pasting the output helps a lot.
+Open an [issue](https://github.com/itConesul/CRMPI/issues/new/choose) — the template asks for what we need (environment, `/api/v1/health`, steps). Running `bash setup-kit/healthcheck.sh` and pasting the output helps a lot.
 
-For **security vulnerabilities**, **do NOT open a public issue** — use [private vulnerability reporting](https://github.com/Sciuba/CRMPI/security/advisories/new). Details in [`SECURITY.md`](SECURITY.md).
+For **security vulnerabilities**, **do NOT open a public issue** — use [private vulnerability reporting](https://github.com/itConesul/CRMPI/security/advisories/new). Details in [`SECURITY.md`](SECURITY.md).
 
 ---
 
@@ -405,8 +405,8 @@ For **security vulnerabilities**, **do NOT open a public issue** — use [privat
 
 ## 💬 Community
 
-- **Discussions:** [GitHub Discussions](https://github.com/Sciuba/CRMPI/discussions)
-- **Issues:** [GitHub Issues](https://github.com/Sciuba/CRMPI/issues)
+- **Discussions:** [GitHub Discussions](https://github.com/itConesul/CRMPI/discussions)
+- **Issues:** [GitHub Issues](https://github.com/itConesul/CRMPI/issues)
 
 ---
 
