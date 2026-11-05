@@ -9,14 +9,14 @@
 #
 # Uso:
 #   bash comecar.sh
-#   curl -fsSL https://raw.githubusercontent.com/Sciuba/CRMPI/main/setup-kit/comecar.sh | bash
+#   curl -fsSL https://raw.githubusercontent.com/itConesul/CRMPI/main/setup-kit/comecar.sh | bash
 #
 set -euo pipefail
 
-REPO_URL="${REPO_URL:-https://github.com/Sciuba/CRMPI.git}"
+REPO_URL="${REPO_URL:-https://github.com/itConesul/CRMPI.git}"
 # Página neutra de VPS: o kit roda em qualquer provedor com Docker.
 VPS_URL="https://www.hostinger.com.br/vps"
-COMUNIDADE_URL="https://github.com/Sciuba/CRMPI/discussions"
+COMUNIDADE_URL="https://github.com/itConesul/CRMPI/discussions"
 
 # ── Aparência ───────────────────────────────────────────────────────────────
 # Gêmeas das do install.sh (que por sua vez é standalone porque roda antes do

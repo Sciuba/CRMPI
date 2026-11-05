@@ -57,7 +57,7 @@ Critérios: ser open source · ser alternativa a um software proprietário · at
 | Intercom | intercom.com |
 | Octadesk | octadesk.com |
 
-Nome da alternativa: `DeskcommCRM` · Repositório: `https://github.com/Sciuba/CRMPI`
+Nome da alternativa: `DeskcommCRM` · Repositório: `https://github.com/itConesul/CRMPI`
 
 ---
 

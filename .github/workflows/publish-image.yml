@@ -367,6 +367,56 @@ jobs:
           done
           echo "stable agora aponta para ${numero} nas três imagens"
 
+  # TRANSIÇÃO DE NAMESPACE: espelha as três imagens em `ghcr.io/sciuba/...`.
+  #
+  # O repositório mudou de dono (Sciuba -> itConesul) e o GHCR NÃO leva os
+  # pacotes junto: o `.env` de toda instalação viva ainda aponta para
+  # `ghcr.io/sciuba/*`. Sem este espelho, essas VPS seguiriam puxando uma imagem
+  # que nunca mais se move — sem erro nenhum, só sem atualização.
+  #
+  # O espelho cobre o intervalo até o `update.sh` novo chegar a cada VPS: ele
+  # regrava as três referências para o namespace atual (`gravar_imagens`). Quando
+  # o parque inteiro tiver migrado, apague este job e o secret.
+  #
+  # NÃO é gate: `imagens-ok` não depende dele, e a ausência do secret só avisa.
+  # `imagetools create` copia o índice já publicado (mesmo digest), não reconstrói.
+  espelhar-namespace-legado:
+    # `promover-stable` entra no needs para o `stable` já existir na origem quando
+    # copiarmos; em push na main ele é PULADO, e `always()` + a checagem de
+    # resultado abaixo deixam passar o `skipped` sem aceitar `failure`.
+    needs: [build-and-push, imagem-do-app-sobe, promover-stable]
+    if: always() && github.event_name == 'push' && (github.ref_type == 'tag' || github.ref_name == 'main') && needs.build-and-push.result == 'success' && needs.imagem-do-app-sobe.result == 'success' && (needs.promover-stable.result == 'success' || needs.promover-stable.result == 'skipped')
+    runs-on: ubuntu-latest
+    permissions:
+      contents: read
+    env:
+      GHCR_LEGADO_TOKEN: ${{ secrets.GHCR_LEGADO_TOKEN }}
+    steps:
+      - name: Espelhar, se o token do namespace legado existir
+        env:
+          ORIGEM_DONO: ${{ github.repository_owner }}
+        run: |
+          set -euo pipefail
+          if [ -z "${GHCR_LEGADO_TOKEN:-}" ]; then
+            echo "::warning::secret GHCR_LEGADO_TOKEN ausente — ghcr.io/sciuba NÃO foi atualizado. Instalações antigas ficam sem a versão nova."
+            exit 0
+          fi
+          echo "$GHCR_LEGADO_TOKEN" | docker login ghcr.io -u sciuba --password-stdin
+          dono=$(echo "$ORIGEM_DONO" | tr '[:upper:]' '[:lower:]')
+          if [ "${GITHUB_REF_TYPE}" = "tag" ]; then
+            numero="${GITHUB_REF_NAME#v}"
+            tags="${numero} ${numero%.*} stable"
+          else
+            tags="latest main"
+          fi
+          for img in deskcommcrm deskcomm-worker deskcomm-scheduler; do
+            for t in $tags; do
+              # `main` e `latest` só existem na origem se foram publicados pelo
+              # push da main; em tag, as três de cima sempre existem.
+              docker buildx imagetools create                 --tag "ghcr.io/sciuba/${img}:${t}"                 "ghcr.io/${dono}/${img}:${t}"
+            done
+          done
+
   # Job de fachada: dá UM nome estável para a branch protection exigir. Sem ele,
   # o required check teria que listar as três instâncias da matriz pelo nome
   # gerado, e acrescentar uma quarta imagem um dia quebraria o gate em silêncio —

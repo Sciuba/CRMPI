@@ -105,6 +105,18 @@ const GATILHO_ESPERADO: Record<string, { condicao: string | null; efeito: string
   // rastro nenhum: o job vira `skipped`, as três imagens publicam, a tag sai, e
   // o canal simplesmente NÃO ANDA — quem instala pelo default do compose fica na
   // versão anterior sem que nada tenha ficado vermelho.
+  // Espelho transitório em `ghcr.io/sciuba` (o GHCR não leva pacotes na mudança de
+  // dono). `always()` é intencional: `promover-stable` é PULADO em push na main, e
+  // sem ele este job herdaria o `skipped`. Os `result == 'success'` impedem que
+  // ele copie uma imagem cujo build falhou.
+  "publish-image.yml::espelhar-namespace-legado": {
+    condicao:
+      "always() && github.event_name == 'push' && (github.ref_type == 'tag' || github.ref_name == 'main') && needs.build-and-push.result == 'success' && needs.imagem-do-app-sobe.result == 'success' && (needs.promover-stable.result == 'success' || needs.promover-stable.result == 'skipped')",
+    efeito:
+      "Desligá-lo deixa `ghcr.io/sciuba/*` parado na última versão espelhada: as VPS " +
+      "antigas, que ainda têm esse namespace no `.env`, deixam de receber atualização " +
+      "sem nenhum erro visível. Some quando o parque inteiro tiver migrado.",
+  },
   "publish-image.yml::promover-stable": {
     condicao:
       "github.event_name == 'push' && github.ref_type == 'tag' && startsWith(github.ref_name, 'v')",

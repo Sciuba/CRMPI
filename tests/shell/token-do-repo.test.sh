@@ -35,7 +35,7 @@ TOKEN_B="github_pat_TESTE_bbbbbbbbbbbbbbbb"
 # Uma "instalação": clone cujo origin aponta para o GitHub (só a URL — nenhum
 # comando aqui fala com ele).
 git init --quiet "$WORK/inst"
-git -C "$WORK/inst" remote add origin https://github.com/Sciuba/CRMPI.git
+git -C "$WORK/inst" remote add origin https://github.com/itConesul/CRMPI.git
 
 # Roda uma função do kit dentro da instalação, numa subshell (o `_common.sh`
 # liga `set -e`, e um `exit` dele não pode derrubar este arquivo).
@@ -120,12 +120,12 @@ check "sem credencial ('could not read Username') → 2 (acesso)" \
   test "$(rc_de "fatal: could not read Username for 'https://github.com': terminal prompts disabled")" = 2
 check "token recusado ('Authentication failed') → 2 (acesso)" \
   test "$(rc_de "remote: Invalid username or token. Password authentication is not supported for Git operations.
-fatal: Authentication failed for 'https://github.com/Sciuba/CRMPI.git/'")" = 2
+fatal: Authentication failed for 'https://github.com/itConesul/CRMPI.git/'")" = 2
 check "token sem acesso a ESTE repo ('Repository not found') → 2 (acesso)" \
   test "$(rc_de "remote: Repository not found.
-fatal: repository 'https://github.com/Sciuba/CRMPI.git/' not found")" = 2
+fatal: repository 'https://github.com/itConesul/CRMPI.git/' not found")" = 2
 check "sem internet ('Could not resolve host') → 1 (rede, não token)" \
-  test "$(rc_de "fatal: unable to access 'https://github.com/Sciuba/CRMPI.git/': Could not resolve host: github.com")" = 1
+  test "$(rc_de "fatal: unable to access 'https://github.com/itConesul/CRMPI.git/': Could not resolve host: github.com")" = 1
 
 git init --quiet "$WORK/local"
 git -C "$WORK/local" remote add origin "$WORK/qualquer.git"
