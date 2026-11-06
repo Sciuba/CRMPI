@@ -8,6 +8,15 @@ Se você roda o DeskcommCRM numa VPS, **leia a seção da versão para a qual es
 
 ## [Não lançado]
 
+## [1.22.3] — 2026-11-06
+
+### Alterado
+
+- **O repositório e as imagens Docker passam a morar na conta itConesul** O código e as imagens (`deskcommcrm`, `deskcomm-worker`, `deskcomm-scheduler`)
+  agora são publicados em `ghcr.io/itconesul`. Quem já tem uma VPS instalada não
+  precisa fazer nada: o `update.sh` regrava as três referências no `.env` para o
+  novo endereço, e até lá as imagens continuam espelhadas em `ghcr.io/sciuba`.
+
 ## [1.22.2] — 2026-11-03
 
 ### Alterado
@@ -3427,7 +3436,8 @@ Primeira versão marcada do DeskcommCRM. O projeto vinha sendo desenvolvido publ
 
 - **Node 22 é obrigatório para desenvolvimento.** A suíte de invariantes instancia o cliente do Supabase, que exige o `WebSocket` global — nativo apenas a partir do Node 22. Isso não afeta quem apenas hospeda: a VPS roda a imagem pronta.
 
-[Não lançado]: https://github.com/Sciuba/CRMPI/compare/v1.22.2...HEAD
+[Não lançado]: https://github.com/itConesul/CRMPI/compare/v1.22.3...HEAD
+[1.22.3]: https://github.com/itConesul/CRMPI/compare/v1.22.2...v1.22.3
 [1.22.2]: https://github.com/Sciuba/CRMPI/compare/v1.22.1...v1.22.2
 [1.22.1]: https://github.com/Sciuba/CRMPI/compare/v1.22.0...v1.22.1
 [1.22.0]: https://github.com/Sciuba/CRMPI/compare/v1.21.1...v1.22.0
